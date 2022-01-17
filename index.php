@@ -1,14 +1,18 @@
 <?php
 
-include('./lib/headers.php');
+include('./lib/Headers.php');
 
 //Incluyo los archivos necesarios
 require './vendor/autoload.php';
 
 require("./controller/UsuarioController.php");
+require("./controller/BarController.php");
+require("./lib/Auth.php");
 
 //Instancia el controlador
 $userController = new UsuarioController();
+$barController = new BarController();
+$auth = new Auth();
 
 //Ruta de la home
 $home =  $_SERVER["SCRIPT_NAME"] . "/api/";
@@ -30,7 +34,9 @@ try {
             'apiVersion' => '2022-01-17'
 
         ));
+
     } else {
+
         switch ($array_ruta[0]) {
 
             case 'login':
@@ -41,7 +47,38 @@ try {
 
             case 'verifyAuth':
 
-                $userController->validateToken();
+                $auth->validateToken();
+
+                break;
+
+            case 'bares':
+
+                $barController->getBares();
+
+                break;
+            
+            case 'bar':
+
+                if(isset($array_ruta[1])){
+
+                    $barController->getBar($array_ruta[1]);
+
+                } else {
+    
+                    http_response_code(400);
+
+                    echo json_encode(array(
+
+                        'log' => 'Endpoint inexistente'
+
+                    ));
+                    
+                }
+
+                break;
+            case 'updateBar':
+
+                $barController->updateBar();
 
                 break;
 
@@ -49,12 +86,23 @@ try {
 
                 http_response_code(400);
 
+                echo json_encode(array(
+
+                    'log' => 'Endpoint inexistente'
+
+                ));
+
                 break;
         }
     }
 } catch (Exception $th) {
     http_response_code(400);
-    return;
+
+    echo json_encode(array(
+
+        "log" => "Error al procesar la peticion, intentalo mas tarde!!"
+
+    ));
 }
 
 
