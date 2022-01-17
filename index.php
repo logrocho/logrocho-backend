@@ -1,4 +1,7 @@
 <?php
+
+include('./lib/headers.php');
+
 //Incluyo los archivos necesarios
 require './vendor/autoload.php';
 
@@ -16,23 +19,62 @@ $ruta = str_replace($home, "", $_SERVER["REQUEST_URI"]);
 //Creo el array de ruta (filtrando los vacios)
 $array_ruta = array_filter(explode("/", $ruta));
 
+try {
+
+    if (sizeof($array_ruta) === 0) {
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            'apiVersion' => '2022-01-17'
+
+        ));
+    } else {
+        switch ($array_ruta[0]) {
+
+            case 'login':
+
+                $userController->login();
+
+                break;
+
+            case 'verifyAuth':
+
+                $userController->validateToken();
+
+                break;
+
+            default:
+
+                http_response_code(400);
+
+                break;
+        }
+    }
+} catch (Exception $th) {
+    http_response_code(400);
+    return;
+}
+
+
+
+
 
 
 //Decido la ruta en funcion de los elementos del array
 
-if (isset($array_ruta[0]) && $array_ruta[0] === "login") {
+// if (isset($array_ruta[0]) && $array_ruta[0] === "login") {
 
-    $userController->login();
-
-}
-
+//     $userController->login();
+// }
 
 
-if (isset($array_ruta[0]) && $array_ruta[0] === "check_login") {
 
-    $userController->validateToken();
+// if (isset($array_ruta[0]) && $array_ruta[0] === "check_login") {
 
-}
+//     $userController->validateToken();
+// }
 
 
 

@@ -65,7 +65,7 @@ class UsuarioController
                     return $jwt;
                 } else {
 
-                    header('HTTP/1.0 400 Bad Request');
+                    http_response_code(400);
 
                     echo json_encode(array(
 
@@ -80,7 +80,7 @@ class UsuarioController
             }
         }
 
-        header('HTTP/1.0 400 Bad Request');
+        http_response_code(400);
 
         echo json_encode(array(
 
@@ -109,7 +109,7 @@ class UsuarioController
 
             if ($token->nbf > $now->getTimestamp() || $token->exp < $now->getTimestamp()) {
 
-                header('HTTP/1.0 400 Bad Request');
+                http_response_code(400);
 
                 echo json_encode(array(
 
@@ -131,7 +131,7 @@ class UsuarioController
                     ));
                 } else {
 
-                    header('HTTP/1.0 400 Bad Request');
+                    http_response_code(400);
 
                     echo json_encode(array(
 
@@ -144,7 +144,7 @@ class UsuarioController
             }
         } catch (\Exception $th) {
 
-            header('HTTP/1.0 400 Bad Request');
+            http_response_code(400);
 
             echo json_encode(array(
 
@@ -158,13 +158,15 @@ class UsuarioController
 
     public function login()
     {
+
         $rawdata = file_get_contents("php://input");
 
-        $datos = json_decode($rawdata, true);
+        $datos = json_decode($rawdata);
 
         $this->db = new db\DB();
 
-        if ($this->db->login($datos['correo'], $datos['password'])) {
+
+        if ($this->db->login($datos->email, $datos->password)) {
 
             $secretKey = 'pepito';
 
@@ -174,7 +176,7 @@ class UsuarioController
 
             $serverName = 'localhost';
 
-            $username = $datos['correo'];
+            $username = $datos->email;
 
             $data = array(
 
@@ -195,6 +197,8 @@ class UsuarioController
 
             $jwt = JWT::encode($data, $secretKey, 'HS512');
 
+            http_response_code(200);
+
             echo json_encode(array(
 
                 "result" => true,
@@ -204,7 +208,7 @@ class UsuarioController
             ));
         } else {
 
-            header('HTTP/1.0 400 Bad Request');
+            http_response_code(400);
 
             echo json_encode(array(
 
@@ -213,7 +217,6 @@ class UsuarioController
                 'message' => "user not found"
 
             ));
-
         }
     }
 

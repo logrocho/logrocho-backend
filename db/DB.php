@@ -1,5 +1,6 @@
 <?php namespace database;
 
+
 require_once('Conexion.php');
 
 use PDOException;
@@ -24,7 +25,7 @@ class DB
 
         try {
 
-            $sql = "SELECT * FROM `usuario` WHERE correo= :correo AND password= :password";
+            $sql = "SELECT * FROM `usuario` WHERE correo= :correo AND password= SHA1(:password)";
 
             $stmt = $this->db->prepare($sql);
 

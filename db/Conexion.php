@@ -1,4 +1,6 @@
-<?php namespace conexion;
+<?php
+
+namespace conexion;
 
 use PDO;
 use PDOException;
