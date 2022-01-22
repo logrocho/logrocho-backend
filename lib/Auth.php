@@ -1,41 +1,51 @@
 <?php
 
-require_once('./db/UserDB.php');
+require_once('./db/DAO.php');
 
-use userdatabase as db;
-
+use dao as db;
+use Firebase\JWT\BeforeValidException;
+use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
+use Firebase\JWT\SignatureInvalidException;
 
 class Auth
 {
 
+    private $secretKey = 'pepito';
 
-    /**
-     * Get header Authorization
-     * */
     private function getAuthorizationHeader()
     {
         $headers = null;
+
         if (isset($_SERVER['Authorization'])) {
+
             $headers = trim($_SERVER["Authorization"]);
+
         } else if (isset($_SERVER['HTTP_AUTHORIZATION'])) { //Nginx or fast CGI
+
             $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
+
         } elseif (function_exists('apache_request_headers')) {
+
             $requestHeaders = apache_request_headers();
+
             // Server-side fix for bug in old Android versions (a nice side-effect of this fix means we don't care about capitalization for Authorization)
             $requestHeaders = array_combine(array_map('ucwords', array_keys($requestHeaders)), array_values($requestHeaders));
+
             //print_r($requestHeaders);
             if (isset($requestHeaders['Authorization'])) {
+
                 $headers = trim($requestHeaders['Authorization']);
+
             }
+
         }
+
         return $headers;
+
     }
 
 
-    /**
-     * Get access token from header
-     * */
     private function getBearerToken()
     {
         $headers = $this->getAuthorizationHeader();
@@ -56,7 +66,7 @@ class Auth
 
                     echo json_encode(array(
 
-                        'result' => false,
+                        'status' => false,
 
                         'message' => "jwt not found"
                     ));
@@ -70,7 +80,7 @@ class Auth
 
         echo json_encode(array(
 
-            'result' => false,
+            'status' => false,
 
             'message' => "jwt not found"
 
@@ -79,85 +89,81 @@ class Auth
         exit;
     }
 
-
-    public function validateToken()
-    {
+    public function getDataToken(){
 
         try {
 
-            $secretKey = 'pepito';
-
             $jwt = $this->getBearerToken();
 
-            $token = JWT::decode($jwt, $secretKey, ['HS512']);
+            $token_data = JWT::decode($jwt, $this->secretKey, ['HS512']);
+    
+            return $token_data->data;
 
-            $now = new DateTimeImmutable();
+        } catch (InvalidArgumentException $th) {
+            
+            http_response_code(400);
 
-            if ($token->nbf > $now->getTimestamp() || $token->exp < $now->getTimestamp()) {
+            echo json_encode(array(
 
-                http_response_code(400);
+                "status" => false,
 
-                echo json_encode(array(
+                "message" => "Providad JWT was empty"
+            ));
 
-                    'result' => false,
+            exit();
 
-                    'message' => "jwt not valid"
-
-                ));
-            } else {
-
-                $db = new db\DB();
-
-                $user = $db->getUser($token->data->email);
-
-                if(isset($user) && !is_null($user)){
-
-                    $user_data = array(
-
-                        "email" => $user[0]["correo"],
-
-                        "nombre" => $user[0]["nombre"],
-
-                        "apellidos" => $user[0]["apellidos"],
-
-                        "rol" => $user[0]["rol"]
-
-                    );
-
-                    http_response_code(200);
-
-                    echo json_encode(array(
-
-                        'result' => true,
-
-                        "data" => $user_data
-
-                    ));
-                    
-                } else {
-
-                    http_response_code(400);
-
-                    echo json_encode(array(
-
-                        'result' => false,
-
-                        'message' => "jwt not valid"
-
-                    ));
-                }
-            }
-        } catch (\Exception $th) {
+        } catch (UnexpectedValueException $th) {
 
             http_response_code(400);
 
             echo json_encode(array(
 
-                'result' => false,
+                "status" => false,
 
-                'message' => "jwt not valid"
-
+                "message" => "Provided JWT was invalid"
             ));
+
+            exit();
+
+        } catch (SignatureInvalidException $th) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Provided JWT was invalid because the signature verification faile"
+            ));
+
+            exit();
+            
+        } catch (BeforeValidException $th) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Provided JWT is trying to be used before it's been created as defined by 'iat'"
+            ));
+
+        } catch (ExpiredException $th) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Provided JWT has since expired, as defined by the 'exp' claim"
+            ));
+
+            exit();
+
         }
+
     }
+
 }

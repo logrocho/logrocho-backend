@@ -2,25 +2,22 @@
 
 include('./lib/Headers.php');
 
-//Incluyo los archivos necesarios
 require './vendor/autoload.php';
 
 require("./controller/UsuarioController.php");
 require("./controller/BarController.php");
+require("./controller/PinchoController.php");
 require("./lib/Auth.php");
 
-//Instancia el controlador
 $userController = new UsuarioController();
 $barController = new BarController();
+$pinchoController = new PinchoController();
 $auth = new Auth();
 
-//Ruta de la home
 $home =  $_SERVER["SCRIPT_NAME"] . "/api/";
 
-//Quito la home de la ruta de la barra de direcciones
 $ruta = str_replace($home, "", $_SERVER["REQUEST_URI"]);
 
-//Creo el array de ruta (filtrando los vacios)
 $array_ruta = array_filter(explode("/", $ruta));
 
 try {
@@ -37,7 +34,7 @@ try {
 
     } else {
 
-        switch ($array_ruta[0]) {
+        switch (explode('?', $array_ruta[0])[0]) {
 
             case 'login':
 
@@ -45,34 +42,44 @@ try {
 
                 break;
 
-            case 'verifyAuth':
-
-                $auth->validateToken();
-
-                break;
-
             case 'bares':
 
-                $barController->getBares();
+                if (isset($_GET['page'])) {
 
-                break;
-            
-            case 'bar':
-
-                if(isset($array_ruta[1])){
-
-                    $barController->getBar($array_ruta[1]);
+                    $barController->getBares();
 
                 } else {
-    
-                    http_response_code(400);
+
+                    http_response_code(404);
 
                     echo json_encode(array(
 
-                        'log' => 'Endpoint inexistente'
+                        'status' => false,
+
+                        'message' => 'Endpoint inexistente'
 
                     ));
-                    
+                }
+
+                break;
+
+            case 'bar':
+
+                if (isset($_GET['id'])) {
+
+                    $barController->getBar();
+
+                } else {
+
+                    http_response_code(404);
+
+                    echo json_encode(array(
+
+                        'status' => false,
+
+                        'message' => 'Endpoint inexistente'
+
+                    ));
                 }
 
                 break;
@@ -82,13 +89,86 @@ try {
 
                 break;
 
+            case 'insertBar':
+
+                $barController->insertBar();
+
+                break;
+
+            case 'deleteBar':
+
+                $barController->deleteBar();
+
+                break;
+
+            case 'pinchos':
+
+                if (isset($_GET['page'])) {
+
+                    $pinchoController->getPinchos();
+
+                } else {
+
+                    http_response_code(404);
+
+                    echo json_encode(array(
+
+                        'status' => false,
+
+                        'message' => 'Endpoint inexistente'
+
+                    ));
+                }
+
+                break;
+
+            case 'pincho':
+
+                if (isset($_GET['id'])) {
+
+                    $pinchoController->getPincho();
+
+                } else {
+
+                    http_response_code(404);
+
+                    echo json_encode(array(
+
+                        'status' => false,
+
+                        'message' => 'Endpoint inexistente'
+
+                    ));
+                }
+
+                break;
+            case 'updatePincho':
+
+                $pinchoController->updatePincho();
+
+                break;
+
+            case 'insertPincho':
+
+                $pinchoController->insertPincho();
+
+                break;
+
+            case 'deletePincho':
+
+                $pinchoController->deletePincho();
+
+                break;
+
             default:
 
-                http_response_code(400);
+                http_response_code(404);
 
                 echo json_encode(array(
 
-                    'log' => 'Endpoint inexistente'
+                    'status' => false,
+
+                    'message' => 'Endpoint inexistente'
 
                 ));
 
@@ -96,90 +176,14 @@ try {
         }
     }
 } catch (Exception $th) {
-    http_response_code(400);
+
+    http_response_code(500);
 
     echo json_encode(array(
 
-        "log" => "Error al procesar la peticion, intentalo mas tarde!!"
+        "status" => false,
+
+        "message" => "Error al procesar la peticion, intentalo mas tarde!!"
 
     ));
 }
-
-
-
-
-
-
-//Decido la ruta en funcion de los elementos del array
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "login") {
-
-//     $userController->login();
-// }
-
-
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "check_login") {
-
-//     $userController->validateToken();
-// }
-
-
-
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "categorias_no_token") {
-//     $api->getCategoriasNoToken();
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "login") {
-//     $api->getTokenSimple();
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "categorias_simple") {
-//     $api->getCategoriasSimple();
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "loginJWT") {
-//     $api->getTokenJWT();
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "categorias_jwt") {
-//     $api->getCategoriasJWT();
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "registro_usuario") {
-//     $api->registrarUsuario();
-// }
-
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "productos") {
-
-//     if (isset($array_ruta[1])) {
-
-//         $api->getProductosSimple($array_ruta[1]);
-//     }
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "productos_jwt") {
-
-//     if (isset($array_ruta[1])) {
-
-//         $api->getProductosJWT($array_ruta[1]);
-//     }
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "pedidos") {
-
-//     if (isset($array_ruta[1])) {
-
-//         $api->getPedidosSimple($array_ruta[1]);
-//     }
-// }
-
-// if (isset($array_ruta[0]) && $array_ruta[0] === "pedidos_jwt") {
-
-//     if (isset($array_ruta[1])) {
-
-//         $api->getPedidosJWT($array_ruta[1]);
-//     }
-// }

@@ -4,17 +4,17 @@ require_once('./db/DAO.php');
 
 use dao as db;
 
-class BarController
+class PinchoController
 {
 
-    public function getBares()
+    public function getPinchos()
     {
 
         $page = $_GET['page'];
 
         $db = new db\DAO();
 
-        $bares = $db->getBares($page);
+        $bares = $db->getPinchos($page);
 
         if(is_null($bares)){
 
@@ -24,7 +24,7 @@ class BarController
 
                 'status' => false,
 
-                "message" => "No se han podido obtener los bares, comprueba que la paginacion sea correcta",
+                "message" => "No se han podido obtener los pinchos, comprueba que la paginacion sea correcta",
 
             ));
 
@@ -43,14 +43,14 @@ class BarController
     }
 
 
-    public function getBar()
+    public function getPincho()
     {
 
         $idBar = $_GET['id'];
 
         $db = new db\DAO();
 
-        $bar = $db->getBar($idBar);
+        $bar = $db->getPincho($idBar);
 
         if (is_null($bar)) {
 
@@ -79,7 +79,7 @@ class BarController
     }
 
 
-    public function updateBar()
+    public function updatePincho()
     {
 
         $db = new db\DAO();
@@ -96,8 +96,7 @@ class BarController
 
         if($user_rol === 'admin' && !is_null($datos)){
 
-
-            if($db->updateBar($datos)){
+            if($db->updatePincho($datos)){
 
                 http_response_code(201);
 
@@ -105,7 +104,7 @@ class BarController
 
                     "status" => true,
 
-                    "message" => "Bar actualizado correctamente"
+                    "message" => "Pincho actualizado correctamente"
 
                 ));
 
@@ -117,7 +116,7 @@ class BarController
 
                     "status" => false,
 
-                    "message" => "Error actualizando el bar"
+                    "message" => "Error actualizando el pincho"
 
                 ));
 
@@ -140,7 +139,7 @@ class BarController
     }
 
 
-    public function deleteBar()
+    public function deletePincho()
     {
 
         $db = new db\DAO();
@@ -157,7 +156,7 @@ class BarController
 
         if($user_rol === 'admin' && !is_null($datos)){
 
-            if($db->deleteBar($datos)){
+            if($db->deletePincho($datos)){
 
                 http_response_code(201);
 
@@ -165,7 +164,7 @@ class BarController
 
                     "status" => true,
 
-                    "message" => "Bar eliminado correctamente"
+                    "message" => "Pincho eliminado correctamente"
 
                 ));
 
@@ -177,7 +176,7 @@ class BarController
 
                     "status" => false,
 
-                    "message" => "Error elimminando el bar"
+                    "message" => "Error elimminando el pincho"
 
                 ));
 
@@ -199,7 +198,7 @@ class BarController
 
     }
 
-    public function insertBar()
+    public function insertPincho()
     {
 
         $db = new db\DAO();
@@ -216,7 +215,7 @@ class BarController
 
         if($user_rol === 'admin' && !is_null($datos)){
 
-            if($db->insertBar($datos)){
+            if($db->insertPincho($datos)){
 
                 http_response_code(201);
 
@@ -224,7 +223,7 @@ class BarController
 
                     "status" => true,
 
-                    "message" => "Bar creado correctamente"
+                    "message" => "Pincho creado correctamente"
 
                 ));
 
@@ -236,7 +235,7 @@ class BarController
 
                     "status" => false,
 
-                    "message" => "Error creando el bar"
+                    "message" => "Error creando el pincho"
 
                 ));
 
@@ -250,7 +249,7 @@ class BarController
 
                 "status" => false,
 
-                "message" => "Token not valid or no data provided"
+                "message" => "Usuario no permitido y no datos"
 
             ));
 

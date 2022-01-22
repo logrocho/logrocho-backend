@@ -1,18 +1,18 @@
 <?php
 
-namespace userdatabase;
+namespace dao;
 
 
 require_once('Conexion.php');
+
 require_once("./model/Bar.php");
 
-use Bar;
 use PDOException;
 use PDO;
 
 use conexion as con;
 
-class DB
+class DAO
 {
     private $db;
 
@@ -22,6 +22,11 @@ class DB
         $this->db = con\Conexion::getConexion();
     }
 
+
+
+    /// ==================
+    /// User Controller
+    /// ==================
 
     public function login($correo, $password)
     {
@@ -79,7 +84,7 @@ class DB
 
             } else {
 
-                return false;
+                return null;
 
             }
 
@@ -92,11 +97,18 @@ class DB
 
 
 
-    public function getBares()
+
+
+
+    /// ==================
+    /// Bar Controller
+    /// ==================
+
+    public function getBares($page)
     {
 
         try {
-            $sql = "SELECT * FROM bares";
+            $sql = "SELECT * FROM bares LIMIT $page, 10";
 
             $stmt = $this->db->prepare($sql);
 
@@ -110,7 +122,7 @@ class DB
 
             } else {
 
-                return false;
+                return null;
 
             }
 
@@ -166,18 +178,122 @@ class DB
 
             $stmt->execute(array(
 
-                "nombre" => $bar->nombre,
+                "id" => $bar->id,
 
-                "localizacion" => $bar->localizacion,
+                "nombre" => $bar->nombre ?? "",
 
-                "infomacion" => $bar->informacion,
+                "localizacion" => $bar->localizacion ?? "",
+
+                "informacion" => $bar->informacion ?? "",
                 
+            ));
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function deleteBar($bar)
+    {
+
+        try {
+            $sql = "DELETE FROM bares WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
                 "id" => $bar->id,
             ));
 
             if ($stmt->rowCount() > 0) {
 
                 return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function insertBar($bar)
+    {
+
+        try {
+            $sql = "INSERT iNTO bares (nombre, localizacion, informacion) VALUES (:nombre, :localizacion, :informacion)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
+                "nombre" => $bar->nombre,
+
+                "localizacion" => $bar->localizacion ?? "",
+
+                "informacion" => $bar->informacion ?? ""
+
+            ));
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+
+
+    /// ==================
+    /// Pincho Controller
+    /// ==================
+
+    public function getPinchos($page)
+    {
+
+        try {
+            $sql = "SELECT * FROM pinchos LIMIT $page, 10";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                
+                $resultado =  $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+                return $resultado;
 
             } else {
 
@@ -193,7 +309,143 @@ class DB
     }
 
 
+    public function getPincho($id)
+    {
 
+        try {
+            $sql = "SELECT * FROM pinchos WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
+                "id" => $id
+                
+            ));
+
+            if ($stmt->rowCount() > 0) {
+                
+                $resultado =  $stmt->fetch(PDO::FETCH_ASSOC);
+
+                return $resultado;
+
+            } else {
+
+                return null;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function updatePincho($bar)
+    {
+
+        try {
+            $sql = "UPDATE pinchos SET nombre= :nombre, puntuacion= :puntuacion, ingredientes= :ingredientes WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
+                "id" => $bar->id,
+
+                "nombre" => $bar->nombre ?? "",
+
+                "puntuacion" => $bar->puntuacion ?? "",
+
+                "ingredientes" => $bar->ingredientes ?? "",
+                
+            ));
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function deletePincho($bar)
+    {
+
+        try {
+            $sql = "DELETE FROM pinchos WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
+                "id" => $bar->id,
+            ));
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function insertPincho($pincho)
+    {
+
+        try {
+            $sql = "INSERT iNTO pinchos (nombre, puntuacion, ingredientes) VALUES (:nombre, :puntuacion, :ingredientes)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
+                "nombre" => $pincho->nombre ?? "",
+
+                "puntuacion" => $pincho->puntuacion ?? "",
+
+                "ingredientes" => $pincho->ingredientes ?? ""
+
+            ));
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
 
 
 
