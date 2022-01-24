@@ -8,7 +8,7 @@ Backend escrito en PHP para la plataforma "Logrocho".
 
 2. Composer
 
-3. Servidor XAMPP o WAMPP instalado localmente.
+3. Servidor XAMPP o WAMP instalado localmente.
 
 ## Iniciar Proyecto
 

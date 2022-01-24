@@ -6,6 +6,7 @@ use dao as db;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 use Firebase\JWT\SignatureInvalidException;
 
 class Auth
@@ -95,7 +96,7 @@ class Auth
 
             $jwt = $this->getBearerToken();
 
-            $token_data = JWT::decode($jwt, $this->secretKey, ['HS512']);
+            $token_data = JWT::decode($jwt, new Key($this->secretKey, 'HS512'));
     
             return $token_data->data;
 

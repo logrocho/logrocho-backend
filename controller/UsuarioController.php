@@ -74,9 +74,10 @@ class UsuarioController
                 "data" => $jwt
 
             ));
+
         } else {
 
-            http_response_code(400);
+            http_response_code(404);
 
             echo json_encode(array(
 
@@ -87,5 +88,4 @@ class UsuarioController
             ));
         }
     }
-
 }
