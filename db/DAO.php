@@ -261,6 +261,8 @@ class DAO
     /// Bar Controller
     /// ==================
 
+    //SELECT b_img.img FROM `bares` as b left join bares_img as b_img on b.id = b_img.id_bar WHERE b.id = 1;
+
     public function getBares(string $key, string $order, string $direction, int $limit, int $offset)
     {
 
@@ -288,6 +290,35 @@ class DAO
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+    public function getImgBar(int $id){
+        try {
+
+            $sql = "SELECT b_img.img FROM `bares` AS b LEFT JOIN `bares_img` AS b_img ON b.id = b_img.id_bar WHERE b.id= :id";
+
+            $stmt = $this->db->prepare($sql);
+                
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            $resultado = $stmt->fetchAll(PDO::FETCH_COLUMN);
+
+            if($resultado === [null]){
+
+                return [];
+
+            } else {
+
+                return $resultado;
+
+            }
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();

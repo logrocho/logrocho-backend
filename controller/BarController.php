@@ -51,6 +51,12 @@ class BarController
 
         $bares = $db->getBares("%".$key."%", $order, $direction, $limit, $offset);
 
+        foreach ($bares as $key => &$value) {
+
+            $value["img"] = $db->getImgBar($value["id"]);
+
+        }
+
         http_response_code(200);
             
         echo json_encode(array(
