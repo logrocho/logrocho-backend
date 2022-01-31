@@ -10,15 +10,19 @@ class Bar
 
     private $informacion;
 
-    public function __construct($ID, $NOMBRE, $LOCALIZACION, $INFORMACION)
+    private $img;
+
+    public function __construct($BAR)
     {
-        $this->id = $ID;
+        $this->id = $BAR->id ?? null;
 
-        $this->nombre = $NOMBRE;
+        $this->nombre = $BAR->nombre ?? null;
 
-        $this->localizacion = $LOCALIZACION;
+        $this->localizacion = $BAR->localizacion ?? null;
 
-        $this->informacion = $INFORMACION;
+        $this->informacion = $BAR->informacion ?? null;
+
+        $this->img = $BAR->img ?? null;
     }
 
     /**
@@ -97,6 +101,26 @@ class Bar
     public function setInformacion($informacion)
     {
         $this->informacion = $informacion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of img
+     */ 
+    public function getImg()
+    {
+        return $this->img;
+    }
+
+    /**
+     * Set the value of img
+     *
+     * @return  self
+     */ 
+    public function setImg($img)
+    {
+        $this->img = $img;
 
         return $this;
     }

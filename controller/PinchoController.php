@@ -1,66 +1,107 @@
 <?php
 
 require_once('./db/DAO.php');
+require_once('./model/Pincho.php');
 
 use dao as db;
 
 class PinchoController
 {
 
+     /**
+     * Obtiene una lista de pinchos
+     * @param int $offset [Parametro GET]
+     * @param int $limit [Parametro GET]
+     * @param string $key [Parametro GET]
+     * @param string $order [Parametro GET]
+     * @param string $direction [Parametro GET]
+     * @return Pincho[] Los pinchos obtenidos
+     * @author Sergio Malagon Martin
+     */
     public function getPinchos()
     {
 
-        $page = $_GET['page'];
+        if(!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])){
+            
+            http_response_code(404);
+            
+            echo json_encode(array(
+                
+                'status' => false,
+                
+                'message' => 'Faltan parametros'
+                
+            ));
+            
+            exit();
+            
+        }
+
+        $limit = $_GET['limit'];
+
+        $offset = $_GET['offset'];
+
+        $key = $_GET['key'];
+
+        $order = $_GET['order'];
+
+        $direction = $_GET['direction'];
 
         $db = new db\DAO();
 
-        $bares = $db->getPinchos($page);
-
-        if(is_null($bares)){
-
-            http_response_code(400);
-            
-            echo json_encode(array(
-
-                'status' => false,
-
-                "message" => "No se han podido obtener los pinchos, comprueba que la paginacion sea correcta",
-
-            ));
-
-        } else {
+        $pinchos = $db->getPinchos("%".$key."%", $order, $direction, $limit, $offset);
    
-            http_response_code(200);
+        http_response_code(200);
             
-            echo json_encode(array(
+        echo json_encode(array(
                 
-                "status" => true,
+            "status" => true,
                 
-                "data" => $bares
+            "data" => $pinchos
                 
-            ));
-        }
+        ));
+        
     }
 
-
+    /**
+     * Obtiene un pincho
+     * @param string $id [Parametro GET]
+     * @return Pincho El pincho obtenido
+     * @author Sergio Malagon Martin
+     */
     public function getPincho()
     {
 
-        $idBar = $_GET['id'];
+        if(!isset($_GET['id'])){
+            
+            http_response_code(404);
+            
+            echo json_encode(array(
+                
+                'status' => false,
+                
+                'message' => 'Faltan parametros'
+                
+            ));
+            
+            exit();
+        }
+
+        $idPincho = $_GET['id'];
 
         $db = new db\DAO();
 
-        $bar = $db->getPincho($idBar);
+        $pincho = $db->getPincho($idPincho);
 
-        if (is_null($bar)) {
+        if (is_null($pincho) || !isset($pincho)) {
 
-            http_response_code(400);
+            http_response_code(404);
 
             echo json_encode(array(
 
                 "status" => false,
 
-                "message" => "El bar no existe"
+                "message" => "El pincho no existe"
 
             ));
 
@@ -72,31 +113,71 @@ class PinchoController
 
                 "status" => true,
 
-                "data" => $bar
+                "data" => $pincho
 
             ));
         }
     }
 
-
+    /**
+     * Actualiza los datos de un pincho
+     * @param string $id [Parametro POST]
+     * @param string $nombre [Parametro POST]
+     * @param string $puntuacion [Parametro POST]
+     * @param string $ingredientes [Parametro POST]
+     * @param string $img [Parametro POST]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function updatePincho()
     {
 
-        $db = new db\DAO();
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
 
         $rawdata = file_get_contents("php://input");
 
-        $datos = json_decode($rawdata);
+        $body_data = new Pincho(json_decode($rawdata));
 
-        $auth = new Auth();
+        if (!$body_data || !isset($body_data)) {
+            
+            http_response_code(401);
+            
+            echo json_encode(array(
+                
+                "status" => false,
+                
+                "message" => "Body not provided"
+                
+            ));
+            
+            exit();
+        }
+        
+        
+        $db = new db\DAO();
 
-        $data = $auth->getDataToken();
+        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        $user_rol = $db->getUser($data->email)[0]['rol'];
+        if($user_rol === 'admin' && !is_null($body_data)){
 
-        if($user_rol === 'admin' && !is_null($datos)){
-
-            if($db->updatePincho($datos)){
+            if($db->updatePincho($body_data)){
 
                 http_response_code(201);
 
@@ -130,7 +211,7 @@ class PinchoController
 
                 "status" => false,
 
-                "message" => "Token not valid or no data provided"
+                "message" => "Accion exclusiva de usuarios admin"
 
             ));
 
@@ -139,24 +220,61 @@ class PinchoController
     }
 
 
+     /**
+     * Elimina un pincho
+     * @param string $id [Parametro GET]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function deletePincho()
     {
 
-        $db = new db\DAO();
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
 
         $rawdata = file_get_contents("php://input");
 
-        $datos = json_decode($rawdata);
+        $body_data = new Pincho(json_decode($rawdata));
 
-        $auth = new Auth();
+        if (!$body_data || !isset($body_data)) {
+            
+            http_response_code(401);
+            
+            echo json_encode(array(
+                
+                "status" => false,
+                
+                "message" => "Body not provided"
+                
+            ));
+            
+            exit();
+        }
+        
+        
+        $db = new db\DAO();
 
-        $data = $auth->getDataToken();
+        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        $user_rol = $db->getUser($data->email)[0]['rol'];
+        if($user_rol === 'admin' && !is_null($body_data)){
 
-        if($user_rol === 'admin' && !is_null($datos)){
-
-            if($db->deletePincho($datos)){
+            if($db->deletePincho($body_data)){
 
                 http_response_code(201);
 
@@ -176,7 +294,7 @@ class PinchoController
 
                     "status" => false,
 
-                    "message" => "Error elimminando el pincho"
+                    "message" => "Error eliminando el pincho"
 
                 ));
 
@@ -190,7 +308,7 @@ class PinchoController
 
                 "status" => false,
 
-                "message" => "Token not valid or no data provided"
+                "message" => "Accion exclusiva de usuarios admin"
 
             ));
 
@@ -198,24 +316,64 @@ class PinchoController
 
     }
 
+
+     /**
+     * Inserta un pincho
+     * @param string $nombre [Parametro POST]
+     * @param string $puntuacion [Parametro POST]
+     * @param string $ingredientes [Parametro POST]
+     * @param string $img [Parametro POST]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function insertPincho()
     {
 
-        $db = new db\DAO();
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
 
         $rawdata = file_get_contents("php://input");
 
-        $datos = json_decode($rawdata);
+        $body_data = new Pincho(json_decode($rawdata));
 
-        $auth = new Auth();
+        if (!$body_data || !isset($body_data)) {
+            
+            http_response_code(401);
+            
+            echo json_encode(array(
+                
+                "status" => false,
+                
+                "message" => "Body not provided"
+                
+            ));
+            
+            exit();
+        }
+            
+        $db = new db\DAO();
 
-        $data = $auth->getDataToken();
+        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        $user_rol = $db->getUser($data->email)[0]['rol'];
+        if($user_rol === 'admin' && !is_null($body_data)){
 
-        if($user_rol === 'admin' && !is_null($datos)){
-
-            if($db->insertPincho($datos)){
+            if($db->insertPincho($body_data)){
 
                 http_response_code(201);
 
@@ -249,7 +407,7 @@ class PinchoController
 
                 "status" => false,
 
-                "message" => "Usuario no permitido y no datos"
+                "message" => "Accion exclusiva de usuarios admin"
 
             ));
 

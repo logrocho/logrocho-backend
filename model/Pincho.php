@@ -10,16 +10,20 @@ class Pincho
 
     private $ingredientes;
 
+    private $img;
 
-    public function __construct($ID, $NOMBRE, $PUNTUACION, $INGREDIENTES)
+
+    public function __construct($PINCHO)
     {
-        $this->id = $ID;
+        $this->id = $PINCHO->id ?? null;
 
-        $this->nombre = $NOMBRE;
+        $this->nombre = $PINCHO->nombre ?? null;
 
-        $this->puntuacion = $PUNTUACION;
+        $this->puntuacion = $PINCHO->puntuacion ?? null;
 
-        $this->ingredientes = $INGREDIENTES;
+        $this->ingredientes = $PINCHO->ingredientes ?? null;
+
+        $this->img = $PINCHO->img ?? null;
     }
 
     /**
@@ -98,6 +102,26 @@ class Pincho
     public function setIngredientes($ingredientes)
     {
         $this->ingredientes = $ingredientes;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of img
+     */ 
+    public function getImg()
+    {
+        return $this->img;
+    }
+
+    /**
+     * Set the value of img
+     *
+     * @return  self
+     */ 
+    public function setImg($img)
+    {
+        $this->img = $img;
 
         return $this;
     }

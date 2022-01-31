@@ -1,24 +1,24 @@
 <?php
 
 require_once('./db/DAO.php');
-require_once('./model/Bar.php');
+require_once('./model/Resena.php');
 
 use dao as db;
 
-class BarController
+class ResenaController
 {
 
-    /**
-     * Obtiene una lista de bares
+     /**
+     * Obtiene una lista de reseñas
      * @param int $offset [Parametro GET]
      * @param int $limit [Parametro GET]
      * @param string $key [Parametro GET]
      * @param string $order [Parametro GET]
      * @param string $direction [Parametro GET]
-     * @return Bar[] Los bares obtenidos
+     * @return Resena[] Las reseñas obtenidos
      * @author Sergio Malagon Martin
      */
-    public function getBares()
+    public function getResenas() // TODO: Modificar metodo para obtener todos los mensajes por cada usuario
     {
 
         if(!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])){
@@ -36,7 +36,7 @@ class BarController
             exit();
             
         }
-        
+
         $limit = $_GET['limit'];
 
         $offset = $_GET['offset'];
@@ -49,7 +49,7 @@ class BarController
 
         $db = new db\DAO();
 
-        $bares = $db->getBares("%".$key."%", $order, $direction, $limit, $offset);
+        $resenas = $db->getResenas("%".$key."%", $order, $direction, $limit, $offset);
 
         http_response_code(200);
             
@@ -57,19 +57,18 @@ class BarController
             
             "status" => true,
             
-            "data" => $bares
+            "data" => $resenas
             
         ));
     }
 
-
-     /**
-     * Obtiene un bar
+    /**
+     * Obtiene una reseña
      * @param string $id [Parametro GET]
-     * @return Bar El bar obtenido
+     * @return Resena El reseña obtenido
      * @author Sergio Malagon Martin
      */
-    public function getBar()
+    public function getResena()
     {
 
         if(!isset($_GET['id'])){
@@ -87,13 +86,13 @@ class BarController
             exit();
         }
 
-        $idBar = $_GET['id'];
+        $idResena = $_GET['id'];
 
         $db = new db\DAO();
 
-        $bar = $db->getBar($idBar);
+        $resena = $db->getResena($idResena);
 
-        if (is_null($bar) || !isset($bar)) {
+        if(is_null($resena) || !isset($resena)){
 
             http_response_code(404);
 
@@ -101,7 +100,7 @@ class BarController
 
                 "status" => false,
 
-                "message" => "El bar no existe"
+                "message" => "La reseña no existe"
 
             ));
 
@@ -113,23 +112,23 @@ class BarController
 
                 "status" => true,
 
-                "data" => $bar
+                "data" => $resena
 
             ));
         }
     }
 
     /**
-     * Actualiza los datos de un bar
+     * Actualiza los datos de una reseña
      * @param string $id [Parametro POST]
-     * @param string $nombre [Parametro POST]
-     * @param string $localizacion [Parametro POST]
-     * @param string $informacion [Parametro POST]
-     * @param string $img [Parametro POST]
+     * @param string $id_usuario [Parametro POST]
+     * @param string $id_pincho [Parametro POST]
+     * @param string $mensaje [Parametro POST]
+     * @param string $puntuacion [Parametro POST]
      * @return null
      * @author Sergio Malagon Martin
      */
-    public function updateBar()
+    public function updateResena()
     {
 
         $auth = new Auth();
@@ -153,7 +152,7 @@ class BarController
 
         $rawdata = file_get_contents("php://input");
 
-        $body_data = new Bar(json_decode($rawdata));
+        $body_data = new Resena(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
             
@@ -177,7 +176,7 @@ class BarController
 
         if($user_rol === 'admin' && !is_null($body_data)){
 
-            if($db->updateBar($body_data)){
+            if($db->updateResena($body_data)){
 
                 http_response_code(201);
 
@@ -185,7 +184,7 @@ class BarController
 
                     "status" => true,
 
-                    "message" => "Bar actualizado correctamente"
+                    "message" => "Reseña actualizada correctamente"
 
                 ));
 
@@ -197,7 +196,7 @@ class BarController
 
                     "status" => false,
 
-                    "message" => "Error actualizando el bar"
+                    "message" => "Error actualizando la reseña"
 
                 ));
 
@@ -219,13 +218,14 @@ class BarController
 
     }
 
-    /**
-     * Elimina un bar
+
+     /**
+     * Elimina una reseña
      * @param string $id [Parametro GET]
      * @return null
      * @author Sergio Malagon Martin
      */
-    public function deleteBar()
+    public function deleteResena()
     {
 
         $auth = new Auth();
@@ -249,7 +249,7 @@ class BarController
 
         $rawdata = file_get_contents("php://input");
 
-        $body_data = new Bar(json_decode($rawdata));
+        $body_data = new Resena(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
             
@@ -273,7 +273,7 @@ class BarController
 
         if($user_rol === 'admin' && !is_null($body_data)){
 
-            if($db->deleteBar($body_data)){
+            if($db->deleteResena($body_data)){
 
                 http_response_code(201);
 
@@ -281,7 +281,7 @@ class BarController
 
                     "status" => true,
 
-                    "message" => "Bar eliminado correctamente"
+                    "message" => "Reseña eliminada correctamente"
 
                 ));
 
@@ -293,7 +293,7 @@ class BarController
 
                     "status" => false,
 
-                    "message" => "Error eliminando el bar"
+                    "message" => "Error eliminando la reseña"
 
                 ));
 
@@ -315,16 +315,17 @@ class BarController
 
     }
 
+
      /**
-     * Inserta un bar
-     * @param string $nombre [Parametro POST]
-     * @param string $localizacion [Parametro POST]
-     * @param string $informacion [Parametro POST]
-     * @param string $img [Parametro POST]
+     * Inserta una reseña
+     * @param string $id_usuario [Parametro POST]
+     * @param string $id_pincho [Parametro POST]
+     * @param string $mensaje [Parametro POST]
+     * @param string $puntuacion [Parametro POST]
      * @return null
      * @author Sergio Malagon Martin
      */
-    public function insertBar()
+    public function insertResena()
     {
 
         $auth = new Auth();
@@ -348,7 +349,7 @@ class BarController
 
         $rawdata = file_get_contents("php://input");
 
-        $body_data = new Bar(json_decode($rawdata));
+        $body_data = new Resena(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
             
@@ -371,7 +372,7 @@ class BarController
 
         if($user_rol === 'admin' && !is_null($body_data)){
 
-            if($db->insertBar($body_data)){
+            if($db->insertResena($body_data)){
 
                 http_response_code(201);
 
@@ -379,7 +380,7 @@ class BarController
 
                     "status" => true,
 
-                    "message" => "Bar creado correctamente"
+                    "message" => "Reseña creada correctamente"
 
                 ));
 
@@ -391,7 +392,7 @@ class BarController
 
                     "status" => false,
 
-                    "message" => "Error creando el bar"
+                    "message" => "Error creando la reseña"
 
                 ));
 

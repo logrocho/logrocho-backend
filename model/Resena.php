@@ -14,17 +14,17 @@ class Resena
     private $puntuacion;
 
 
-    public function __construct($ID, $ID_USUARIO, $ID_PINCHO, $MENSAJE, $PUNTUACION)
+    public function __construct($RESENA)
     {
-        $this->id = $ID;
+        $this->id = $RESENA->id ?? null;
 
-        $this->id_usuario = $ID_USUARIO;
+        $this->id_usuario = $RESENA->id_usuario ?? null;
 
-        $this->id_pincho = $ID_PINCHO;
+        $this->id_pincho = $RESENA->id_pincho ?? null;
 
-        $this->mensaje = $MENSAJE;
+        $this->mensaje = $RESENA->mensaje ?? null;
 
-        $this->puntuacion = $PUNTUACION;
+        $this->puntuacion = $RESENA->puntuacion ?? null;
     }
 
     /**

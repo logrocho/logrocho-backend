@@ -7,11 +7,13 @@ require './vendor/autoload.php';
 require("./controller/UsuarioController.php");
 require("./controller/BarController.php");
 require("./controller/PinchoController.php");
+require("./controller/ResenaController.php");
 require("./lib/Auth.php");
 
 $userController = new UsuarioController();
 $barController = new BarController();
 $pinchoController = new PinchoController();
+$resenaController = new ResenaController();
 $auth = new Auth();
 
 $home =  $_SERVER["SCRIPT_NAME"] . "/api/";
@@ -28,7 +30,7 @@ try {
 
         echo json_encode(array(
 
-            'apiVersion' => '2022-01-17'
+            'apiVersion' => '2022-01-31'
 
         ));
 
@@ -42,47 +44,48 @@ try {
 
                 break;
 
+            case 'insertUser':
+
+                $userController->insertUser();
+    
+                break;
+
+            case 'deleteUser':
+
+                $userController->deleteUser();
+        
+                break;
+            
+            case 'updateUser':
+
+                $userController->updateUser();
+
+                break;
+
+            case 'users':
+
+                $userController->getUsers();
+
+                break;
+            
+            case 'user':
+
+                $userController->getUser();
+
+                break;
+
             case 'bares':
 
-                if (isset($_GET['page'])) {
-
-                    $barController->getBares();
-
-                } else {
-
-                    http_response_code(404);
-
-                    echo json_encode(array(
-
-                        'status' => false,
-
-                        'message' => 'Endpoint inexistente'
-
-                    ));
-                }
+                $barController->getBares();
 
                 break;
 
             case 'bar':
 
-                if (isset($_GET['id'])) {
-
-                    $barController->getBar();
-
-                } else {
-
-                    http_response_code(404);
-
-                    echo json_encode(array(
-
-                        'status' => false,
-
-                        'message' => 'Endpoint inexistente'
-
-                    ));
-                }
+                $barController->getBar();
 
                 break;
+
             case 'updateBar':
 
                 $barController->updateBar();
@@ -103,43 +106,13 @@ try {
 
             case 'pinchos':
 
-                if (isset($_GET['page'])) {
-
-                    $pinchoController->getPinchos();
-
-                } else {
-
-                    http_response_code(404);
-
-                    echo json_encode(array(
-
-                        'status' => false,
-
-                        'message' => 'Endpoint inexistente'
-
-                    ));
-                }
+                $pinchoController->getPinchos();
 
                 break;
 
             case 'pincho':
 
-                if (isset($_GET['id'])) {
-
-                    $pinchoController->getPincho();
-
-                } else {
-
-                    http_response_code(404);
-
-                    echo json_encode(array(
-
-                        'status' => false,
-
-                        'message' => 'Endpoint inexistente'
-
-                    ));
-                }
+                $pinchoController->getPincho();
 
                 break;
             case 'updatePincho':
@@ -157,6 +130,36 @@ try {
             case 'deletePincho':
 
                 $pinchoController->deletePincho();
+
+                break;
+
+            case 'resenas':
+
+                $resenaController->getResenas();
+
+                break;
+
+            case 'resena':
+
+                $resenaController->getResena();
+
+                break;
+
+            case 'updateResena':
+
+                $resenaController->updateResena();
+
+                break;
+
+            case 'deleteResena':
+
+                $resenaController->deleteResena();
+
+                break;
+            
+            case 'insertResena':
+
+                $resenaController->insertResena();
 
                 break;
 

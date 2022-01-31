@@ -7,6 +7,14 @@ require_once('Conexion.php');
 
 require_once("./model/Bar.php");
 
+require_once("./model/Pincho.php");
+
+require_once('./model/Resena.php');
+
+use Pincho;
+use Resena;
+use Usuario;
+use Bar;
 use PDOException;
 use PDO;
 
@@ -28,22 +36,20 @@ class DAO
     /// User Controller
     /// ==================
 
-    public function login($correo, $password)
+    public function login(string $correo, string $password)
     {
 
         try {
 
-            $sql = "SELECT * FROM `usuario` WHERE correo= :correo AND password= SHA1(:password)";
+            $sql = "SELECT * FROM `usuarios` WHERE correo= :correo AND password= SHA1(:password)";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":correo", $correo, PDO::PARAM_STR);
 
-                "correo" => $correo,
+            $stmt->bindValue(":password", $password, PDO::PARAM_STR);
 
-                "password" => $password
-
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -61,12 +67,12 @@ class DAO
     }
 
 
-    public function getUser($correo)
+    public function getUser(string $correo)
     {
 
         try {
 
-            $sql = "SELECT * FROM `usuario` WHERE correo= :correo";
+            $sql = "SELECT * FROM `usuarios` WHERE correo= :correo";
 
             $stmt = $this->db->prepare($sql);
 
@@ -78,9 +84,7 @@ class DAO
 
             if($stmt->rowCount()>0){
 
-                $user = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-                return $user;
+                return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             } else {
 
@@ -93,6 +97,159 @@ class DAO
             echo "PDO ERROR: " . $th->getMessage();
         }
     }
+
+
+    public function getUsers(string $key, string $order, string $direction, int $limit, int $offset)
+    {
+
+        try {
+
+            
+            if($direction === "DESC"){
+
+                $sql = "SELECT * FROM `usuarios` WHERE nombre LIKE :key ORDER BY $order DESC LIMIT :limit OFFSET :offset";
+
+            } else if ($direction === "ASC"){
+
+                $sql = "SELECT * FROM `usuarios` WHERE nombre LIKE :key ORDER BY $order ASC LIMIT :limit OFFSET :offset";
+
+            }
+
+            $stmt = $this->db->prepare($sql);
+            
+            $stmt->bindValue(":key",$key, PDO::PARAM_STR );
+
+            $stmt->bindValue(":limit", $limit, PDO::PARAM_INT);
+
+            $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+            // if($resultado->rowCount()>0){
+
+    
+            // } else {
+
+            //     return null;
+
+            // }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
+
+
+    public function insertUser(Usuario $user)
+    {
+
+        try {
+
+            $sql = "INSERT INTO `usuarios` (correo, password, nombre, apellidos, img) VALUES (:correo, SHA1(:password), :nombre, :apellidos, :img)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":correo", $user->getCorreo(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":password", $user->getPassword(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":nombre", $user->getNombre(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":apellidos", $user->getApellidos(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":img", $user->getImg(), PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            if($stmt->rowCount()>0){
+    
+                return true;
+
+            } else {
+
+                return null;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
+
+    public function deleteUser(Usuario $user)
+    {
+
+        try {
+            $sql = "DELETE FROM `usuarios` WHERE correo= :correo";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute(array(
+
+                "correo" => $user->getCorreo(),
+            ));
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+    public function updateUser(Usuario $user)
+    {
+
+        try {
+            $sql = "UPDATE `usuarios` SET password= SHA1(:password), nombre= :nombre, apellidos= :apellidos, img= :img, rol= :rol WHERE correo= :correo";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":correo", $user->getCorreo(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":password", $user->getPassword(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":nombre", $user->getNombre(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":apellidos", $user->getApellidos(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":img", $user->getImg(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":rol", $user->getRol() ?? 'user', PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+    
 
 
 
@@ -104,27 +261,32 @@ class DAO
     /// Bar Controller
     /// ==================
 
-    public function getBares($page)
+    public function getBares(string $key, string $order, string $direction, int $limit, int $offset)
     {
 
         try {
-            $sql = "SELECT * FROM bares LIMIT $page, 10";
+
+            if($direction === "DESC"){
+
+                $sql = "SELECT * FROM `bares` WHERE nombre LIKE :key ORDER BY $order DESC LIMIT :limit OFFSET :offset";
+
+            } else if ($direction === "ASC"){
+
+                $sql = "SELECT * FROM `bares` WHERE nombre LIKE :key ORDER BY $order ASC LIMIT :limit OFFSET :offset";
+
+            }
 
             $stmt = $this->db->prepare($sql);
+                
+            $stmt->bindValue(":key", $key, PDO::PARAM_STR);
+
+            $stmt->bindValue(":limit", $limit, PDO::PARAM_INT);
+
+            $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
 
             $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
-                
-                $resultado =  $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                return $resultado;
-
-            } else {
-
-                return null;
-
-            }
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         } catch (PDOException $th) {
 
@@ -133,20 +295,17 @@ class DAO
         }
     }
 
-
-    public function getBar($id)
+    public function getBar(int $id)
     {
 
         try {
-            $sql = "SELECT * FROM bares WHERE id= :id";
+            $sql = "SELECT * FROM `bares` WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
 
-                "id" => $id
-                
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
                 
@@ -168,25 +327,25 @@ class DAO
     }
 
 
-    public function updateBar($bar)
+    public function updateBar(Bar $bar)
     {
 
         try {
-            $sql = "UPDATE bares SET nombre= :nombre, localizacion= :localizacion, informacion= :informacion WHERE id= :id";
+            $sql = "UPDATE `bares` SET nombre= :nombre, localizacion= :localizacion, informacion= :informacion, img= :img WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":nombre",$bar->getNombre() ?? "", PDO::PARAM_STR);
 
-                "id" => $bar->id,
+            $stmt->bindValue(":localizacion",$bar->getLocalizacion(), PDO::PARAM_STR);
 
-                "nombre" => $bar->nombre ?? "",
+            $stmt->bindValue(":informacion",$bar->getInformacion(), PDO::PARAM_STR);
 
-                "localizacion" => $bar->localizacion ?? "",
+            $stmt->bindValue(":img",$bar->getImg(), PDO::PARAM_STR);
 
-                "informacion" => $bar->informacion ?? "",
-                
-            ));
+            $stmt->bindValue(":id",$bar->getId(), PDO::PARAM_STR);
+
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -206,18 +365,17 @@ class DAO
     }
 
 
-    public function deleteBar($bar)
+    public function deleteBar(Bar $bar)
     {
 
         try {
-            $sql = "DELETE FROM bares WHERE id= :id";
+            $sql = "DELETE FROM `bares` WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":id", $bar->getId(), PDO::PARAM_INT);
 
-                "id" => $bar->id,
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -237,23 +395,23 @@ class DAO
     }
 
 
-    public function insertBar($bar)
+    public function insertBar(Bar $bar)
     {
 
         try {
-            $sql = "INSERT iNTO bares (nombre, localizacion, informacion) VALUES (:nombre, :localizacion, :informacion)";
+            $sql = "INSERT iNTO bares (nombre, localizacion, informacion, img) VALUES (:nombre, :localizacion, :informacion, :img)";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":nombre", $bar->getNombre(), PDO::PARAM_STR);
 
-                "nombre" => $bar->nombre,
+            $stmt->bindValue(":localizacion", $bar->getLocalizacion(), PDO::PARAM_STR);
 
-                "localizacion" => $bar->localizacion ?? "",
-
-                "informacion" => $bar->informacion ?? ""
-
-            ));
+            $stmt->bindValue(":informacion", $bar->getInformacion(), PDO::PARAM_STR);
+            
+            $stmt->bindValue(":img", $bar->getImg(), PDO::PARAM_STR);
+            
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -279,21 +437,57 @@ class DAO
     /// Pincho Controller
     /// ==================
 
-    public function getPinchos($page)
+    public function getPinchos(string $key, string $order, string $direction, int $limit, int $offset)
     {
 
         try {
-            $sql = "SELECT * FROM pinchos LIMIT $page, 10";
+
+
+            if($direction === "DESC"){
+
+                $sql = "SELECT * FROM `pinchos` WHERE nombre LIKE :key ORDER BY $order DESC LIMIT :limit OFFSET :offset";
+
+            } else if ($direction === "ASC"){
+
+                $sql = "SELECT * FROM `pinchos` WHERE nombre LIKE :key ORDER BY $order ASC LIMIT :limit OFFSET :offset";
+
+            }
 
             $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":key", $key, PDO::PARAM_STR);
+
+            $stmt->bindValue(":limit", $limit, PDO::PARAM_INT);
+
+            $stmt->bindValue(":offset", $offset, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function getPincho(int $id)
+    {
+
+        try {
+            $sql = "SELECT * FROM `pinchos` WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
 
             $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
                 
-                $resultado =  $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-                return $resultado;
+                return $stmt->fetch(PDO::FETCH_ASSOC);
 
             } else {
 
@@ -309,59 +503,25 @@ class DAO
     }
 
 
-    public function getPincho($id)
+    public function updatePincho(Pincho $pincho)
     {
 
         try {
-            $sql = "SELECT * FROM pinchos WHERE id= :id";
+            $sql = "UPDATE `pinchos` SET nombre= :nombre, puntuacion= :puntuacion, ingredientes= :ingredientes, img= :img WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":id", $pincho->getId(), PDO::PARAM_INT);
 
-                "id" => $id
-                
-            ));
+            $stmt->bindValue(":nombre", $pincho->getNombre(), PDO::PARAM_STR);
 
-            if ($stmt->rowCount() > 0) {
-                
-                $resultado =  $stmt->fetch(PDO::FETCH_ASSOC);
+            $stmt->bindValue(":puntuacion", $pincho->getPuntuacion(), PDO::PARAM_INT);
 
-                return $resultado;
+            $stmt->bindValue(":ingredientes", $pincho->getIngredientes(), PDO::PARAM_STR);
 
-            } else {
+            $stmt->bindValue(":img", $pincho->getImg(), PDO::PARAM_STR);
 
-                return null;
-
-            }
-
-        } catch (PDOException $th) {
-
-            echo "PDO ERROR: " . $th->getMessage();
-
-        }
-    }
-
-
-    public function updatePincho($bar)
-    {
-
-        try {
-            $sql = "UPDATE pinchos SET nombre= :nombre, puntuacion= :puntuacion, ingredientes= :ingredientes WHERE id= :id";
-
-            $stmt = $this->db->prepare($sql);
-
-            $stmt->execute(array(
-
-                "id" => $bar->id,
-
-                "nombre" => $bar->nombre ?? "",
-
-                "puntuacion" => $bar->puntuacion ?? "",
-
-                "ingredientes" => $bar->ingredientes ?? "",
-                
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -381,7 +541,7 @@ class DAO
     }
 
 
-    public function deletePincho($bar)
+    public function deletePincho(Pincho $pincho)
     {
 
         try {
@@ -389,10 +549,9 @@ class DAO
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":id", $pincho->getId(), PDO::PARAM_INT );
 
-                "id" => $bar->id,
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -412,23 +571,23 @@ class DAO
     }
 
 
-    public function insertPincho($pincho)
+    public function insertPincho(Pincho $pincho)
     {
 
         try {
-            $sql = "INSERT iNTO pinchos (nombre, puntuacion, ingredientes) VALUES (:nombre, :puntuacion, :ingredientes)";
+            $sql = "INSERT iNTO pinchos (nombre, puntuacion, ingredientes, img) VALUES (:nombre, :puntuacion, :ingredientes, :img)";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":nombre", $pincho->getNombre(), PDO::PARAM_STR);
 
-                "nombre" => $pincho->nombre ?? "",
+            $stmt->bindValue(":puntuacion", $pincho->getPuntuacion(), PDO::PARAM_INT);
 
-                "puntuacion" => $pincho->puntuacion ?? "",
+            $stmt->bindValue(":ingredientes", $pincho->getIngredientes(), PDO::PARAM_STR);
 
-                "ingredientes" => $pincho->ingredientes ?? ""
+            $stmt->bindValue(":img", $pincho->getImg(), PDO::PARAM_STR);
 
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -449,114 +608,177 @@ class DAO
 
 
 
-    // public function getRestaurante($correo, $clave)
-    // {
-    //     try {
-    //         $sql = "SELECT * FROM RESTAURANTE WHERE CORREO='$correo' AND CLAVE='$clave'";
-    //         $resultado = $this->db->query($sql);
-    //         if($resultado->rowCount()>0){
-    //             return $resultado;
-    //         }else{
-    //             print_r($this->db->errorInfo());
-    //             return false;
-    //         }
-    //     } catch (PDOException $th) {
-    //         echo "PDO ERROR: " . $th->getMessage();
-    //     }
-    // }
+    /// ==================
+    /// Resena Controller
+    /// ==================
 
-    // public function getCategorias()
-    // {
-    //     $salida = [];
-    //     try {
-    //         $sql = "SELECT * FROM CATEGORIA";
-    //         $resultado = $this->db->query($sql);
-    //         if ($resultado->rowCount() > 0) {
-    //             foreach ($resultado as $categoria) {
-    //                 array_push($salida, array(
-    //                     "codCat" => $categoria["CodCat"],
-    //                     "nombre" => $categoria["Nombre"],
-    //                     "descripcion" => $categoria["Descripcion"],
-    //                 ));
-    //             }
-    //             return $salida;
-    //         } else {
-    //             print_r($this->db->errorInfo());
-    //             return false;
-    //         }
-    //     } catch (PDOException $th) {
-    //         echo "PDO ERROR: " . $th->getMessage();
-    //     }
-    // }
+    public function getResenas(string $key, string $order, string $direction, int $limit, int $offset)
+    {
 
-    // public function getProductos($categoria)
-    // {
-    //     $salida = [];
-    //     try {
-    //         $sql = "SELECT * FROM PRODUCTO WHERE SHA1(CODCAT)='$categoria'";
-    //         $resultado = $this->db->query($sql);
-    //         if ($resultado->rowCount() > 0) {
-    //             foreach ($resultado as $producto) {
-    //                 array_push($salida, array(
-    //                     "codProd" => $producto["CodProd"],
-    //                     "codCat" => $producto["CodCat"],
-    //                     "nombre" => $producto["Nombre"],
-    //                     "descripcion" => $producto["Descripcion"],
-    //                     "peso" => $producto["Peso"],
-    //                     "stock" => $producto["Stock"]
-    //                 ));
-    //             }
-    //             return $salida;
-    //         } else {
-    //             print_r($this->db->errorInfo());
-    //             return false;
-    //         }
-    //     } catch (PDOException $th) {
-    //         echo "PDO ERROR: " . $th->getMessage();
-    //     }
-    // }
+        try {
 
-    // public function getDetallePedidos($pk_restaurante)
-    // {
-    //     $salida = [];
-    //     try {
-    //         $sql = "SELECT pedidosproductos.id,pedidosproductos.CodPed,pedidosproductos.CodProd,pedidosproductos.unidades
-    //         FROM pedidosproductos
-    //         INNER JOIN pedido ON pedidosproductos.CodPed = pedido.CodPed 
-    //         WHERE pedido.CodRes = '$pk_restaurante'";
-    //         $resultado = $this->db->query($sql);
-    //         if ($resultado->rowCount() > 0) {
-    //             foreach ($resultado as $key) {
-    //                 array_push($salida, array(
-    //                     "id" => $key["id"],
-    //                     "codPed" => $key["CodPed"],
-    //                     "codProd" => $key["CodProd"],
-    //                     "unidades" => $key["unidades"]
-    //                 ));
-    //             }
-    //             return $salida;
-    //         } else {
-    //             print_r($this->db->errorInfo());
-    //             return false;
-    //         }
-    //     } catch (PDOException $th) {
-    //         echo "PDO ERROR: " . $th->getMessage();
-    //     }
-    // }
+            if($direction === "DESC"){
 
-    // public function registrar($correo, $clave, $direccion)
-    // {
-    //     try {
-    //         $sql = "INSERT INTO RESTAURANTE (CORREO,CLAVE,DIRECCION) VALUES ('$correo','$clave','$direccion')";
-    //         $resultado = $this->db->query($sql);
-    //         if ($resultado->rowCount() > 0) {
-    //             return true;
-    //         } else {
-    //             print_r($this->db->errorInfo());
-    //             return false;
-    //         }
-    //     } catch (PDOException $th) {
-    //         echo "PDO ERROR: " . $th->getMessage();
-    //     }
-    // }
+                $sql = "SELECT * FROM `resenas` WHERE mensaje LIKE :key ORDER BY $order DESC LIMIT :limit OFFSET :offset";
+
+            } else if ($direction === "ASC"){
+
+                $sql = "SELECT * FROM `resenas` WHERE mensaje LIKE :key ORDER BY $order ASC LIMIT :limit OFFSET :offset";
+
+            }
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindParam(":key", $key, PDO::PARAM_STR);
+
+            $stmt->bindParam(":limit", $limit, PDO::PARAM_INT);
+
+            $stmt->bindParam(":offset", $offset, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function getResena(int $id)
+    {
+
+        try {
+            $sql = "SELECT * FROM `resenas` WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                
+                return $stmt->fetch(PDO::FETCH_ASSOC);
+
+            } else {
+
+                return null;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function updateResena(Resena $resena)
+    {
+
+        try {
+            $sql = "UPDATE `resenas` SET id_usuario= :id_usuario, id_pincho= :id_pincho, mensaje= :mensaje, puntuacion= :puntuacion WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $resena->getId(), PDO::PARAM_INT);
+
+            $stmt->bindValue(":id_usuario", $resena->getId_usuario(), PDO::PARAM_INT);
+
+            $stmt->bindValue(":id_pincho", $resena->getId_pincho(), PDO::PARAM_INT);
+
+            $stmt->bindValue(":mensaje", $resena->getMensaje(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":puntuacion", $resena->getPuntuacion(), PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function deleteResena(Resena $resena)
+    {
+
+        try {
+            $sql = "DELETE FROM `resenas` WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $resena->getId(), PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function insertResena(Resena $resena)
+    {
+
+        try {
+            $sql = "INSERT iNTO `resenas` (id_usuario, id_pincho, mensaje, puntuacion) VALUES (:id_usuario, :id_pincho, :mensaje, :puntuacion)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id_usuario", $resena->getId_usuario(), PDO::PARAM_INT);
+
+            $stmt->bindValue(":id_pincho", $resena->getId_pincho(), PDO::PARAM_INT);
+
+            $stmt->bindValue(":mensaje", $resena->getMensaje(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":puntuacion", $resena->getPuntuacion(), PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
 }

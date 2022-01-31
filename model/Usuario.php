@@ -12,24 +12,28 @@ class Usuario
 
     private $apellidos;
 
+    private $img;
+
     private $rol;
 
-    public function __construct($ID, $CORREO, $PASSWORD, $NOMBRE, $APELLIDOS, $ROL)
+    public function __construct($USER)
     {
-        $this->id = $ID;
+        $this->id = $USER->id ?? null;
 
-        $this->correo = $CORREO;
+        $this->correo = $USER->correo ?? null;
 
-        $this->password = $PASSWORD;
+        $this->password = $USER->password ?? null;
 
-        $this->nombre = $NOMBRE;
+        $this->nombre = $USER->nombre ?? null;
 
-        $this->apellidos = $APELLIDOS;
+        $this->apellidos = $USER->apellidos ?? null;
 
-        $this->rol = $ROL;
+        $this->img = $USER->img ?? null;
+
+        $this->rol = $USER->rol ?? null;
     }
 
-
+    
     /**
      * Get the value of id
      */
@@ -146,6 +150,26 @@ class Usuario
     public function setRol($rol)
     {
         $this->rol = $rol;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of img
+     */ 
+    public function getImg()
+    {
+        return $this->img;
+    }
+
+    /**
+     * Set the value of img
+     *
+     * @return  self
+     */ 
+    public function setImg($img)
+    {
+        $this->img = $img;
 
         return $this;
     }

@@ -150,6 +150,8 @@ class Auth
                 "message" => "Provided JWT is trying to be used before it's been created as defined by 'iat'"
             ));
 
+            exit();
+
         } catch (ExpiredException $th) {
 
             http_response_code(400);
