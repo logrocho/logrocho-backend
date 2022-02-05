@@ -76,15 +76,13 @@ class DAO
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":correo", $correo, PDO::PARAM_STR);
 
-                "correo" => $correo,
-
-            ));
+            $stmt->execute();
 
             if($stmt->rowCount()>0){
 
-                return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                return $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
 
             } else {
 
@@ -297,6 +295,24 @@ class DAO
         }
     }
 
+    public function getBaresCount(){
+
+        try {
+            $sql = "SELECT COUNT(id) as count FROM `bares`";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC)[0];
+
+        } catch(PDOException $th){
+            
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
     public function getImgBar(int $id){
         try {
 
@@ -325,6 +341,36 @@ class DAO
 
         }
     }
+
+    public function getPinchosBar(int $id){
+        try {
+
+            $sql = "SELECT p.id,p.nombre,p.puntuacion,p.ingredientes FROM `pinchos` as p left join `bares_pinchos` as bp on p.id = bp.pincho_id where bp.bar_id = :id";
+
+            $stmt = $this->db->prepare($sql);
+                
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if($resultado === [null]){
+
+                return [];
+
+            } else {
+
+                return $resultado;
+
+            }
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
 
     public function getBar(int $id)
     {
@@ -362,7 +408,7 @@ class DAO
     {
 
         try {
-            $sql = "UPDATE `bares` SET nombre= :nombre, localizacion= :localizacion, informacion= :informacion, img= :img WHERE id= :id";
+            $sql = "UPDATE `bares` SET nombre= :nombre, localizacion= :localizacion, informacion= :informacion WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
@@ -372,25 +418,54 @@ class DAO
 
             $stmt->bindValue(":informacion",$bar->getInformacion(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":img",$bar->getImg(), PDO::PARAM_STR);
-
             $stmt->bindValue(":id",$bar->getId(), PDO::PARAM_STR);
 
             $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
 
-                return true;
 
-            } else {
+            $sql = "DELETE FROM `bares_pinchos` WHERE bar_id= :bar_id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":bar_id", $bar->getId(),PDO::PARAM_INT);
+
+            $stmt->execute();
+
+
+            try {
+
+                $this->db->beginTransaction();
+
+            foreach ($bar->getPinchos() as $key => $value) {
+
+                $pincho_id = $value->id;
+
+                $bar_id = $bar->getId();
+
+                $sql = "INSERT INTO `bares_pinchos` (pincho_id, bar_id) VALUES($pincho_id, $bar_id)";
+
+                $this->db->query($sql);
+
+            }
+
+            $resultado = $this->db->commit();
+
+            } catch (\Throwable $th) {
+
+                $this->db->rollBack();
 
                 return false;
 
             }
 
+            return true;
+
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
 
         }
     }

@@ -55,7 +55,11 @@ class BarController
 
             $value["img"] = $db->getImgBar($value["id"]);
 
+            $value['pinchos'] = $db->getPinchosBar($value['id']);
+
         }
+
+        $count = $db->getBaresCount()['count'];
 
         http_response_code(200);
             
@@ -63,7 +67,13 @@ class BarController
             
             "status" => true,
             
-            "data" => $bares
+            "data" => array(
+
+                "bares" => $bares,
+
+                "count" => $count
+
+            )
             
         ));
     }
@@ -179,7 +189,7 @@ class BarController
         
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
+        $user_rol = $db->getUser($token_data->correo)['rol'];
 
         if($user_rol === 'admin' && !is_null($body_data)){
 

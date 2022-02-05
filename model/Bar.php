@@ -12,6 +12,8 @@ class Bar
 
     private $img;
 
+    private $pinchos;
+
     public function __construct($BAR)
     {
         $this->id = $BAR->id ?? null;
@@ -23,6 +25,8 @@ class Bar
         $this->informacion = $BAR->informacion ?? null;
 
         $this->img = $BAR->img ?? null;
+
+        $this->pinchos = $BAR->pinchos ?? null;
     }
 
     /**
@@ -121,6 +125,26 @@ class Bar
     public function setImg($img)
     {
         $this->img = $img;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pinchos
+     */ 
+    public function getPinchos()
+    {
+        return $this->pinchos;
+    }
+
+    /**
+     * Set the value of pinchos
+     *
+     * @return  self
+     */ 
+    public function setPinchos($pinchos)
+    {
+        $this->pinchos = $pinchos;
 
         return $this;
     }

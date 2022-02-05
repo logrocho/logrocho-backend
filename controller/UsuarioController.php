@@ -62,7 +62,7 @@ class UsuarioController
 
             $correo = $body_data->getCorreo();
 
-            $rol = $db->getUser($correo)[0]['rol'];
+            $rol = $db->getUser($correo)['rol'];
 
             $data = array(
 
