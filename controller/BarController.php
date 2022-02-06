@@ -21,22 +21,21 @@ class BarController
     public function getBares()
     {
 
-        if(!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])){
-            
+        if (!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])) {
+
             http_response_code(404);
-            
+
             echo json_encode(array(
-                
+
                 'status' => false,
-                
+
                 'message' => 'Faltan parametros'
-                
+
             ));
-            
+
             exit();
-            
         }
-        
+
         $limit = $_GET['limit'];
 
         $offset = $_GET['offset'];
@@ -49,37 +48,36 @@ class BarController
 
         $db = new db\DAO();
 
-        $bares = $db->getBares("%".$key."%", $order, $direction, $limit, $offset);
+        $bares = $db->getBares("%" . $key . "%", $order, $direction, $limit, $offset);
 
         foreach ($bares as $key => &$value) {
 
             $value["img"] = $db->getImgBar($value["id"]);
 
             $value['pinchos'] = $db->getPinchosBar($value['id']);
-
         }
 
         $count = $db->getBaresCount()['count'];
 
         http_response_code(200);
-            
+
         echo json_encode(array(
-            
+
             "status" => true,
-            
+
             "data" => array(
 
                 "bares" => $bares,
 
-                "count" => $count
+                "count" => $count //TODO: Count es el numero de resultados que ha devuelto sin paginar no el total de la tabla
 
             )
-            
+
         ));
     }
 
 
-     /**
+    /**
      * Obtiene un bar
      * @param string $id [Parametro GET]
      * @return Bar El bar obtenido
@@ -88,18 +86,18 @@ class BarController
     public function getBar()
     {
 
-        if(!isset($_GET['id'])){
-            
+        if (!isset($_GET['id'])) {
+
             http_response_code(404);
-            
+
             echo json_encode(array(
-                
+
                 'status' => false,
-                
+
                 'message' => 'Faltan parametros'
-                
+
             ));
-            
+
             exit();
         }
 
@@ -120,7 +118,6 @@ class BarController
                 "message" => "El bar no existe"
 
             ));
-
         } else {
 
             http_response_code(200);
@@ -172,28 +169,28 @@ class BarController
         $body_data = new Bar(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-        
-        
+
+
         $db = new db\DAO();
 
         $user_rol = $db->getUser($token_data->correo)['rol'];
 
-        if($user_rol === 'admin' && !is_null($body_data)){
+        if ($user_rol === 'admin' && !is_null($body_data)) {
 
-            if($db->updateBar($body_data)){
+            if ($db->updateBar($body_data)) {
 
                 http_response_code(201);
 
@@ -204,7 +201,6 @@ class BarController
                     "message" => "Bar actualizado correctamente"
 
                 ));
-
             } else {
 
                 http_response_code(400);
@@ -216,9 +212,7 @@ class BarController
                     "message" => "Error actualizando el bar"
 
                 ));
-
             }
-
         } else {
 
             http_response_code(401);
@@ -230,9 +224,7 @@ class BarController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
-
         }
-
     }
 
     /**
@@ -268,28 +260,28 @@ class BarController
         $body_data = new Bar(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-        
-        
+
+
         $db = new db\DAO();
 
         $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        if($user_rol === 'admin' && !is_null($body_data)){
+        if ($user_rol === 'admin' && !is_null($body_data)) {
 
-            if($db->deleteBar($body_data)){
+            if ($db->deleteBar($body_data)) {
 
                 http_response_code(201);
 
@@ -300,7 +292,6 @@ class BarController
                     "message" => "Bar eliminado correctamente"
 
                 ));
-
             } else {
 
                 http_response_code(400);
@@ -312,9 +303,7 @@ class BarController
                     "message" => "Error eliminando el bar"
 
                 ));
-
             }
-
         } else {
 
             http_response_code(401);
@@ -326,12 +315,10 @@ class BarController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
-
         }
-
     }
 
-     /**
+    /**
      * Inserta un bar
      * @param string $nombre [Parametro POST]
      * @param string $localizacion [Parametro POST]
@@ -367,27 +354,27 @@ class BarController
         $body_data = new Bar(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-            
+
         $db = new db\DAO();
 
         $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        if($user_rol === 'admin' && !is_null($body_data)){
+        if ($user_rol === 'admin' && !is_null($body_data)) {
 
-            if($db->insertBar($body_data)){
+            if ($db->insertBar($body_data)) {
 
                 http_response_code(201);
 
@@ -398,7 +385,6 @@ class BarController
                     "message" => "Bar creado correctamente"
 
                 ));
-
             } else {
 
                 http_response_code(400);
@@ -410,9 +396,7 @@ class BarController
                     "message" => "Error creando el bar"
 
                 ));
-
             }
-
         } else {
 
             http_response_code(401);
@@ -424,8 +408,133 @@ class BarController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
+        }
+    }
 
+    public function uploadImages()
+    {
+
+        if (!isset($_GET['id'])) {
+
+            http_response_code(404);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Faltan parametros'
+
+            ));
+
+            exit();
         }
 
+        $barID = $_GET['id'];
+
+        $target_dir = "img/img_bares/$barID/";
+
+        if (!file_exists($target_dir)) {
+
+            mkdir($target_dir);
+        }
+
+        $db = new db\DAO();
+
+        for ($i = 0; $i < COUNT($_FILES); $i++) {
+
+            $target_file = $target_dir . basename($_FILES["file$i"]["name"]);
+
+            if (!file_exists($target_file)) {
+
+                move_uploaded_file($_FILES["file$i"]["tmp_name"], $target_file);
+
+                if (!$db->insertImagenBar($barID, $_FILES["file$i"]["name"])) {
+
+                    http_response_code(400);
+
+                    echo json_encode(array(
+
+                        "status" => false,
+
+                        "message" => 'Error al insertar las imagenes'
+                    ));
+
+                    exit();
+                }
+            }
+        }
+
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => false,
+
+            "message" => 'Imagenes insertadas corretamente'
+        ));
+
+        exit();
+    }
+
+
+    public function removeImagesBar()
+    {
+
+        if (!isset($_GET['img_id']) || !isset($_GET['bar_id']) || !isset($_GET['filename'])) {
+
+            http_response_code(404);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Faltan parametros'
+
+            ));
+
+            exit();
+        }
+
+
+        $img_id = $_GET['img_id'];
+
+        $bar_id = $_GET['bar_id'];
+
+        $filename = $_GET['filename'];
+
+        $target_dir = "img/img_bares/$bar_id/$filename";
+
+        if (file_exists($target_dir)) {
+
+            $db = new db\DAO();
+
+            unlink($target_dir);
+
+            if ($db->removeImagenBar($img_id)) {
+
+                http_response_code(200);
+
+                echo json_encode(array(
+
+                    "status" => true,
+
+                    "message" => 'Imagenes eliminadas correctamente'
+                ));
+
+                exit();
+            }
+        }
+
+        http_response_code(400);
+
+        echo json_encode(array(
+
+            "status" => false,
+
+            "message" => 'Error eliminando las imagenes'
+        ));
+
+        exit();
     }
 }

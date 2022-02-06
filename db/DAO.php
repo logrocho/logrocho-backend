@@ -259,8 +259,6 @@ class DAO
     /// Bar Controller
     /// ==================
 
-    //SELECT b_img.img FROM `bares` as b left join bares_img as b_img on b.id = b_img.id_bar WHERE b.id = 1;
-
     public function getBares(string $key, string $order, string $direction, int $limit, int $offset)
     {
 
@@ -316,7 +314,7 @@ class DAO
     public function getImgBar(int $id){
         try {
 
-            $sql = "SELECT b_img.img FROM `bares` AS b LEFT JOIN `bares_img` AS b_img ON b.id = b_img.id_bar WHERE b.id= :id";
+            $sql = "SELECT b_img.id, b_img.filename FROM `bares` AS b LEFT JOIN `bares_img` AS b_img ON b.id = b_img.id_bar WHERE b.id= :id";
 
             $stmt = $this->db->prepare($sql);
                 
@@ -324,9 +322,9 @@ class DAO
 
             $stmt->execute();
 
-            $resultado = $stmt->fetchAll(PDO::FETCH_COLUMN);
+            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            if($resultado === [null]){
+            if($resultado[0]['filename'] === null){
 
                 return [];
 
@@ -449,7 +447,7 @@ class DAO
 
             }
 
-            $resultado = $this->db->commit();
+            $this->db->commit();
 
             } catch (\Throwable $th) {
 
@@ -517,6 +515,68 @@ class DAO
             
             $stmt->bindValue(":img", $bar->getImg(), PDO::PARAM_STR);
             
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+    
+    public function insertImagenBar(int $bar_id, string $filename){
+        
+        try {
+
+            $sql = "INSERT iNTO `bares_img` (id_bar, filename) VALUES (:id_bar, :filename)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id_bar", $bar_id, PDO::PARAM_INT);
+
+            $stmt->bindValue(":filename", $filename, PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+
+            } else {
+
+                return false;
+
+            }
+
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+        }
+    }
+
+
+    public function removeImagenBar(int $img_id){
+        
+        try {
+
+            $sql = "DELETE FROM `bares_img` WHERE id= :img_id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":img_id", $img_id, PDO::PARAM_INT);
+
             $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
@@ -885,6 +945,7 @@ class DAO
 
         }
     }
+
 
 
 }

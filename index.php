@@ -14,7 +14,6 @@ $userController = new UsuarioController();
 $barController = new BarController();
 $pinchoController = new PinchoController();
 $resenaController = new ResenaController();
-$auth = new Auth();
 
 $home =  $_SERVER["SCRIPT_NAME"] . "/api/";
 
@@ -102,6 +101,18 @@ try {
 
                 $barController->deleteBar();
 
+                break;
+
+            case 'uploadImagesBar':
+                
+                $barController->uploadImages();
+    
+                break;
+            
+            case 'removeImagesBar':
+                
+                $barController->removeImagesBar();
+        
                 break;
 
             case 'pinchos':

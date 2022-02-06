@@ -14,9 +14,11 @@ class Auth
 
     private $secretKey = 'pepito';
 
+    
     private function getAuthorizationHeader()
     {
         $headers = null;
+
 
         if (isset($_SERVER['Authorization'])) {
 
