@@ -372,7 +372,7 @@ class PinchoController
 
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
+        $user_rol = $db->getUser($token_data->correo)['rol'];
 
         if ($user_rol === 'admin' && !is_null($body_data)) {
 

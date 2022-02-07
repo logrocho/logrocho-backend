@@ -153,7 +153,7 @@ class DAO
     {
 
         try {
-            $sql = "SELECT COUNT(id) as count FROM `pinchos`";
+            $sql = "SELECT COUNT(id) as count FROM `usuarios`";
 
             $stmt = $this->db->prepare($sql);
 
@@ -209,10 +209,9 @@ class DAO
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->execute(array(
+            $stmt->bindValue(":correo", $user->getCorreo(), PDO::PARAM_STR);
 
-                "correo" => $user->getCorreo(),
-            ));
+            $stmt->execute();
 
             if ($stmt->rowCount() > 0) {
 
@@ -493,7 +492,7 @@ class DAO
     {
 
         try {
-            $sql = "INSERT iNTO bares (nombre, localizacion, informacion, img) VALUES (:nombre, :localizacion, :informacion, :img)";
+            $sql = "INSERT iNTO bares (nombre, localizacion, informacion) VALUES (:nombre, :localizacion, :informacion)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -502,8 +501,6 @@ class DAO
             $stmt->bindValue(":localizacion", $bar->getLocalizacion(), PDO::PARAM_STR);
 
             $stmt->bindValue(":informacion", $bar->getInformacion(), PDO::PARAM_STR);
-
-            $stmt->bindValue(":img", $bar->getImg(), PDO::PARAM_STR);
 
             $stmt->execute();
 
@@ -750,7 +747,7 @@ class DAO
     {
 
         try {
-            $sql = "INSERT iNTO pinchos (nombre, puntuacion, ingredientes, img) VALUES (:nombre, :puntuacion, :ingredientes, :img)";
+            $sql = "INSERT iNTO pinchos (nombre, puntuacion, ingredientes, precio) VALUES (:nombre, :puntuacion, :ingredientes, :precio)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -760,7 +757,7 @@ class DAO
 
             $stmt->bindValue(":ingredientes", $pincho->getIngredientes(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":img", $pincho->getImg(), PDO::PARAM_STR);
+            $stmt->bindValue(":precio", $pincho->getPrecio(), PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -917,15 +914,13 @@ class DAO
     {
 
         try {
-            $sql = "UPDATE `resenas` SET mensaje= :mensaje, puntuacion= :puntuacion WHERE id= :id";
+            $sql = "UPDATE `resenas` SET mensaje= :mensaje WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
             $stmt->bindValue(":id", $resena->getId(), PDO::PARAM_INT);
 
             $stmt->bindValue(":mensaje", $resena->getMensaje(), PDO::PARAM_STR);
-
-            $stmt->bindValue(":puntuacion", $resena->getPuntuacion(), PDO::PARAM_INT);
 
             $stmt->execute();
 
@@ -973,17 +968,17 @@ class DAO
     {
 
         try {
-            $sql = "INSERT iNTO `resenas` (id_usuario, id_pincho, mensaje, puntuacion) VALUES (:id_usuario, :id_pincho, :mensaje, :puntuacion)";
+            $sql = "INSERT iNTO `resenas` (usuario, pincho, mensaje, puntuacion) VALUES (:usuario, :pincho, :mensaje, :puntuacion)";
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->bindValue(":id_usuario", $resena->getUsuario()->id, PDO::PARAM_INT);
+            $stmt->bindValue(":usuario", $resena->getUsuario(), PDO::PARAM_INT);
 
-            $stmt->bindValue(":id_pincho", $resena->getPincho()->id, PDO::PARAM_INT);
+            $stmt->bindValue(":pincho", $resena->getPincho(), PDO::PARAM_INT);
 
             $stmt->bindValue(":mensaje", $resena->getMensaje(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":puntuacion", $resena->getPuntuacion(), PDO::PARAM_INT);
+            $stmt->bindValue(":puntuacion", 0, PDO::PARAM_INT);
 
             $stmt->execute();
 

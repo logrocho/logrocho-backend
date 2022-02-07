@@ -374,7 +374,7 @@ class BarController
 
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
+        $user_rol = $db->getUser($token_data->correo)['rol'];
 
         if ($user_rol === 'admin' && !is_null($body_data)) {
 
@@ -417,6 +417,26 @@ class BarController
 
     public function uploadImages()
     {
+
+        // $auth = new Auth();
+
+        // $token_data = $auth->getDataToken();
+
+        // if (!$token_data || !isset($token_data)) {
+
+        //     http_response_code(401);
+
+        //     echo json_encode(array(
+
+        //         "status" => false,
+
+        //         "message" => "Token not provided"
+
+        //     ));
+
+        //     exit();
+        // }
+
 
         if (!isset($_GET['id'])) {
 
@@ -473,9 +493,9 @@ class BarController
 
         echo json_encode(array(
 
-            "status" => false,
+            "status" => true,
 
-            "message" => 'Imagenes insertadas corretamente'
+            "message" => "Imagenes insertadas correctamente"
         ));
 
         exit();

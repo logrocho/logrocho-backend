@@ -1,7 +1,5 @@
 <?php
 
-include('./lib/Headers.php');
-
 require './vendor/autoload.php';
 
 require("./controller/UsuarioController.php");
@@ -9,6 +7,18 @@ require("./controller/BarController.php");
 require("./controller/PinchoController.php");
 require("./controller/ResenaController.php");
 require("./lib/Auth.php");
+
+
+header('Access-Control-Allow-Origin: *');
+
+header('Content-Type: application/json');
+
+header('Access-Control-Allow-Methods: GET, POST, DELETE, PUT, OPTIONS ');
+
+header('Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization');
+
+header('Access-Control-Allow-Credentials: true');
+
 
 $userController = new UsuarioController();
 $barController = new BarController();
