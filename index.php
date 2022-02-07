@@ -29,10 +29,9 @@ try {
 
         echo json_encode(array(
 
-            'apiVersion' => '2022-01-31'
+            'apiVersion' => '2022-02-07'
 
         ));
-
     } else {
 
         switch (explode('?', $array_ruta[0])[0]) {
@@ -46,15 +45,15 @@ try {
             case 'insertUser':
 
                 $userController->insertUser();
-    
+
                 break;
 
             case 'deleteUser':
 
                 $userController->deleteUser();
-        
+
                 break;
-            
+
             case 'updateUser':
 
                 $userController->updateUser();
@@ -66,7 +65,7 @@ try {
                 $userController->getUsers();
 
                 break;
-            
+
             case 'user':
 
                 $userController->getUser();
@@ -104,15 +103,15 @@ try {
                 break;
 
             case 'uploadImagesBar':
-                
+
                 $barController->uploadImages();
-    
+
                 break;
-            
+
             case 'removeImagesBar':
-                
-                $barController->removeImagesBar();
-        
+
+                $barController->removeImages();
+
                 break;
 
             case 'pinchos':
@@ -144,6 +143,18 @@ try {
 
                 break;
 
+            case 'uploadImagesPincho':
+
+                $pinchoController->uploadImages();
+
+                break;
+
+            case 'removeImagesPincho':
+
+                $pinchoController->removeImages();
+
+                break;
+
             case 'resenas':
 
                 $resenaController->getResenas();
@@ -167,7 +178,7 @@ try {
                 $resenaController->deleteResena();
 
                 break;
-            
+
             case 'insertResena':
 
                 $resenaController->insertResena();

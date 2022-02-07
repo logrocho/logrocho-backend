@@ -10,6 +10,8 @@ class Pincho
 
     private $ingredientes;
 
+    private $precio;
+
     private $img;
 
 
@@ -22,6 +24,8 @@ class Pincho
         $this->puntuacion = $PINCHO->puntuacion ?? null;
 
         $this->ingredientes = $PINCHO->ingredientes ?? null;
+
+        $this->precio = $PINCHO->precio ?? null;
 
         $this->img = $PINCHO->img ?? null;
     }
@@ -108,7 +112,7 @@ class Pincho
 
     /**
      * Get the value of img
-     */ 
+     */
     public function getImg()
     {
         return $this->img;
@@ -118,10 +122,30 @@ class Pincho
      * Set the value of img
      *
      * @return  self
-     */ 
+     */
     public function setImg($img)
     {
         $this->img = $img;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of precio
+     */
+    public function getPrecio()
+    {
+        return $this->precio;
+    }
+
+    /**
+     * Set the value of precio
+     *
+     * @return  self
+     */
+    public function setPrecio($precio)
+    {
+        $this->precio = $precio;
 
         return $this;
     }

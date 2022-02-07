@@ -5,9 +5,9 @@ class Resena
 
     private $id;
 
-    private $id_usuario;
+    private $usuario;
 
-    private $id_pincho;
+    private $pincho;
 
     private $mensaje;
 
@@ -18,9 +18,9 @@ class Resena
     {
         $this->id = $RESENA->id ?? null;
 
-        $this->id_usuario = $RESENA->id_usuario ?? null;
+        $this->usuario = $RESENA->usuario ?? null;
 
-        $this->id_pincho = $RESENA->id_pincho ?? null;
+        $this->pincho = $RESENA->pincho ?? null;
 
         $this->mensaje = $RESENA->mensaje ?? null;
 
@@ -43,46 +43,6 @@ class Resena
     public function setId($id)
     {
         $this->id = $id;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of id_usuario
-     */
-    public function getId_usuario()
-    {
-        return $this->id_usuario;
-    }
-
-    /**
-     * Set the value of id_usuario
-     *
-     * @return  self
-     */
-    public function setId_usuario($id_usuario)
-    {
-        $this->id_usuario = $id_usuario;
-
-        return $this;
-    }
-
-    /**
-     * Get the value of id_pincho
-     */
-    public function getId_pincho()
-    {
-        return $this->id_pincho;
-    }
-
-    /**
-     * Set the value of id_pincho
-     *
-     * @return  self
-     */
-    public function setId_pincho($id_pincho)
-    {
-        $this->id_pincho = $id_pincho;
 
         return $this;
     }
@@ -123,6 +83,46 @@ class Resena
     public function setPuntuacion($puntuacion)
     {
         $this->puntuacion = $puntuacion;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of pincho
+     */
+    public function getPincho()
+    {
+        return $this->pincho;
+    }
+
+    /**
+     * Set the value of pincho
+     *
+     * @return  self
+     */
+    public function setPincho($pincho)
+    {
+        $this->pincho = $pincho;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of usuario
+     */
+    public function getUsuario()
+    {
+        return $this->usuario;
+    }
+
+    /**
+     * Set the value of usuario
+     *
+     * @return  self
+     */
+    public function setUsuario($usuario)
+    {
+        $this->usuario = $usuario;
 
         return $this;
     }

@@ -8,7 +8,7 @@ use dao as db;
 class ResenaController
 {
 
-     /**
+    /**
      * Obtiene una lista de reseñas
      * @param int $offset [Parametro GET]
      * @param int $limit [Parametro GET]
@@ -18,23 +18,22 @@ class ResenaController
      * @return Resena[] Las reseñas obtenidos
      * @author Sergio Malagon Martin
      */
-    public function getResenas() // TODO: Modificar metodo para obtener todos los mensajes por cada usuario
+    public function getResenas()
     {
 
-        if(!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])){
-            
+        if (!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])) {
+
             http_response_code(404);
-            
+
             echo json_encode(array(
-                
+
                 'status' => false,
-                
+
                 'message' => 'Faltan parametros'
-                
+
             ));
-            
+
             exit();
-            
         }
 
         $limit = $_GET['limit'];
@@ -49,16 +48,43 @@ class ResenaController
 
         $db = new db\DAO();
 
-        $resenas = $db->getResenas("%".$key."%", $order, $direction, $limit, $offset);
+        $resenas = $db->getResenas("%" . $key . "%", $order, $direction, $limit, $offset);
+
+        foreach ($resenas as $key => &$value) {
+
+            $user = $db->getUserById($value['usuario']);
+
+            $pincho = $db->getPincho($value['pincho']);
+
+            $value['usuario'] = array(
+
+                "id" => $user['id'],
+
+                "nombre" => $user['nombre'] . " " . $user['apellidos']
+            );
+
+            $value['pincho'] = array(
+
+                "id" => $pincho['id'],
+
+                "nombre" => $pincho['nombre']
+            );
+        }
+
+        $count = $db->getResenaCount()['count'];
 
         http_response_code(200);
-            
+
         echo json_encode(array(
-            
+
             "status" => true,
-            
-            "data" => $resenas
-            
+
+            "data" => array(
+
+                "resenas" => $resenas,
+
+                "count" => $count
+            )
         ));
     }
 
@@ -71,18 +97,18 @@ class ResenaController
     public function getResena()
     {
 
-        if(!isset($_GET['id'])){
-            
+        if (!isset($_GET['id'])) {
+
             http_response_code(404);
-            
+
             echo json_encode(array(
-                
+
                 'status' => false,
-                
+
                 'message' => 'Faltan parametros'
-                
+
             ));
-            
+
             exit();
         }
 
@@ -92,7 +118,7 @@ class ResenaController
 
         $resena = $db->getResena($idResena);
 
-        if(is_null($resena) || !isset($resena)){
+        if (is_null($resena) || !isset($resena)) {
 
             http_response_code(404);
 
@@ -104,18 +130,36 @@ class ResenaController
 
             ));
 
-        } else {
-
-            http_response_code(200);
-
-            echo json_encode(array(
-
-                "status" => true,
-
-                "data" => $resena
-
-            ));
+            exit();
         }
+
+        $user = $db->getUserById($resena['usuario']);
+
+        $pincho = $db->getPincho($resena['pincho']);
+
+        $resena['usuario'] = array(
+
+            "id" => $user['id'],
+
+            "nombre" => $user['nombre'] . " " . $user['apellidos']
+        );
+
+        $resena['pincho'] = array(
+
+            "id" => $pincho['id'],
+
+            "nombre" => $pincho['nombre']
+        );
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => true,
+
+            "data" => $resena
+
+        ));
     }
 
     /**
@@ -155,28 +199,28 @@ class ResenaController
         $body_data = new Resena(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-        
-        
+
+
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
+        $user_rol = $db->getUser($token_data->correo)['rol'];
 
-        if($user_rol === 'admin' && !is_null($body_data)){
+        if ($user_rol === 'admin' && !is_null($body_data)) {
 
-            if($db->updateResena($body_data)){
+            if ($db->updateResena($body_data)) {
 
                 http_response_code(201);
 
@@ -187,7 +231,6 @@ class ResenaController
                     "message" => "Reseña actualizada correctamente"
 
                 ));
-
             } else {
 
                 http_response_code(400);
@@ -199,9 +242,7 @@ class ResenaController
                     "message" => "Error actualizando la reseña"
 
                 ));
-
             }
-
         } else {
 
             http_response_code(401);
@@ -213,13 +254,11 @@ class ResenaController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
-
         }
-
     }
 
 
-     /**
+    /**
      * Elimina una reseña
      * @param string $id [Parametro GET]
      * @return null
@@ -252,28 +291,28 @@ class ResenaController
         $body_data = new Resena(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-        
-        
+
+
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
+        $user_rol = $db->getUser($token_data->correo)['rol'];
 
-        if($user_rol === 'admin' && !is_null($body_data)){
+        if ($user_rol === 'admin' && !is_null($body_data)) {
 
-            if($db->deleteResena($body_data)){
+            if ($db->deleteResena($body_data)) {
 
                 http_response_code(201);
 
@@ -284,7 +323,6 @@ class ResenaController
                     "message" => "Reseña eliminada correctamente"
 
                 ));
-
             } else {
 
                 http_response_code(400);
@@ -296,9 +334,7 @@ class ResenaController
                     "message" => "Error eliminando la reseña"
 
                 ));
-
             }
-
         } else {
 
             http_response_code(401);
@@ -310,13 +346,11 @@ class ResenaController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
-
         }
-
     }
 
 
-     /**
+    /**
      * Inserta una reseña
      * @param string $id_usuario [Parametro POST]
      * @param string $id_pincho [Parametro POST]
@@ -352,27 +386,27 @@ class ResenaController
         $body_data = new Resena(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-            
+
         $db = new db\DAO();
 
         $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        if($user_rol === 'admin' && !is_null($body_data)){
+        if ($user_rol === 'admin' && !is_null($body_data)) {
 
-            if($db->insertResena($body_data)){
+            if ($db->insertResena($body_data)) {
 
                 http_response_code(201);
 
@@ -383,7 +417,6 @@ class ResenaController
                     "message" => "Reseña creada correctamente"
 
                 ));
-
             } else {
 
                 http_response_code(400);
@@ -395,9 +428,7 @@ class ResenaController
                     "message" => "Error creando la reseña"
 
                 ));
-
             }
-
         } else {
 
             http_response_code(401);
@@ -409,8 +440,6 @@ class ResenaController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
-
         }
-
     }
 }

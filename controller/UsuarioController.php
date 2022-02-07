@@ -6,17 +6,17 @@ require_once('./model/Usuario.php');
 
 use dao as db;
 use Firebase\JWT\JWT;
- 
-    //  Los códigos de respuesta más comúnmente utilizados con REST son:
 
-    //  200 OK. Satisfactoria.
-    //  201 Created. Un resource se ha creado. Respuesta satisfactoria a un request POST o PUT.
-    //  400 Bad Request. El request tiene algún error, por ejemplo cuando los datos proporcionados en POST o PUT no pasan la validación.
-    //  401 Unauthorized. Es necesario identificarse primero.
-    //  404 Not Found. Esta respuesta indica que el resource requerido no se puede encontrar (La URL no se corresponde con un resource).
-    //  405 Method Not Allowed. El método HTTP utilizado no es soportado por este resource.
-    //  409 Conflict. Conflicto, por ejemplo cuando se usa un PUT request para crear el mismo resource dos veces.
-    //  500 Internal Server Error. Un error 500 suele ser un error inesperado en el servidor.
+//  Los códigos de respuesta más comúnmente utilizados con REST son:
+
+//  200 OK. Satisfactoria.
+//  201 Created. Un resource se ha creado. Respuesta satisfactoria a un request POST o PUT.
+//  400 Bad Request. El request tiene algún error, por ejemplo cuando los datos proporcionados en POST o PUT no pasan la validación.
+//  401 Unauthorized. Es necesario identificarse primero.
+//  404 Not Found. Esta respuesta indica que el resource requerido no se puede encontrar (La URL no se corresponde con un resource).
+//  405 Method Not Allowed. El método HTTP utilizado no es soportado por este resource.
+//  409 Conflict. Conflicto, por ejemplo cuando se usa un PUT request para crear el mismo resource dos veces.
+//  500 Internal Server Error. Un error 500 suele ser un error inesperado en el servidor.
 class UsuarioController
 {
     /**
@@ -34,17 +34,17 @@ class UsuarioController
         $body_data = new Usuario(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
 
@@ -144,7 +144,6 @@ class UsuarioController
                 ));
 
                 exit();
-
             } else if ($db->insertUser($body_data)) {
 
                 http_response_code(201);
@@ -158,7 +157,6 @@ class UsuarioController
                 ));
 
                 exit();
-
             } else {
 
                 http_response_code(400);
@@ -199,9 +197,9 @@ class UsuarioController
     {
 
         $auth = new Auth();
-        
+
         $token_data = $auth->getDataToken();
-        
+
         if (!$token_data || !isset($token_data)) {
 
             http_response_code(401);
@@ -216,26 +214,26 @@ class UsuarioController
 
             exit();
         }
-        
+
         $rawdata = file_get_contents("php://input");
-        
+
         $body_data = new Usuario(json_decode($rawdata));
 
         if (is_null($body_data) || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-        
+
         $db = new db\DAO();
 
         $user_rol = $db->getUser($token_data->correo)[0]['rol'];
@@ -312,26 +310,26 @@ class UsuarioController
             exit();
         }
 
-        
+
         $rawdata = file_get_contents("php://input");
-        
+
         $body_data = new Usuario(json_decode($rawdata));
 
         if (!$body_data || !isset($body_data)) {
-            
+
             http_response_code(401);
-            
+
             echo json_encode(array(
-                
+
                 "status" => false,
-                
+
                 "message" => "Body not provided"
-                
+
             ));
-            
+
             exit();
         }
-        
+
         $db = new db\DAO();
 
         $user_rol = $db->getUser($token_data->correo)[0]['rol'];
@@ -403,38 +401,37 @@ class UsuarioController
 
             exit();
         }
-        
-        if(!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])){
-            
+
+        if (!isset($_GET['offset']) || !isset($_GET['limit']) || !isset($_GET['key']) || !isset($_GET['order']) || !isset($_GET['direction'])) {
+
             http_response_code(404);
-            
+
             echo json_encode(array(
-                
+
                 'status' => false,
-                
+
                 'message' => 'Faltan parametros'
-                
+
             ));
-            
+
             exit();
-            
         }
-        
+
         $offset = $_GET['offset'];
 
         $limit = $_GET['limit'];
-        
+
         $key = $_GET['key'];
 
         $order = $_GET['order'];
 
         $direction = $_GET['direction'];
-                
-        $db = new db\DAO();
-        
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
 
-        if($user_rol !== 'admin'){
+        $db = new db\DAO();
+
+        $user_rol = $db->getUser($token_data->correo)['rol'];
+
+        if ($user_rol !== 'admin') {
 
             http_response_code(401);
 
@@ -449,18 +446,25 @@ class UsuarioController
             exit();
         }
 
-        $users = $db->getUsers("%".$key."%", $order, $direction, $limit, $offset);
+        $users = $db->getUsers("%" . $key . "%", $order, $direction, $limit, $offset);
+
+        $count = $db->getUsersCount()['count'];
 
         http_response_code(200);
-            
-        echo json_encode(array(
-            
-            "status" => true,
-            
-            "data" => $users
-            
-        ));
 
+        echo json_encode(array(
+
+            "status" => true,
+
+            "data" => array(
+
+                "users" => $users,
+
+                "count" => $count
+
+            )
+
+        ));
     }
 
     /**
@@ -472,18 +476,18 @@ class UsuarioController
     public function getUser()
     {
 
-        if(!isset($_GET['correo'])){
-            
+        if (!isset($_GET['correo'])) {
+
             http_response_code(404);
-            
+
             echo json_encode(array(
-                
+
                 'status' => false,
-                
+
                 'message' => 'Faltan parametros'
-                
+
             ));
-            
+
             exit();
         }
 
@@ -504,7 +508,6 @@ class UsuarioController
                 "message" => "El usuario no existe"
 
             ));
-
         } else {
 
             http_response_code(200);

@@ -69,7 +69,7 @@ class BarController
 
                 "bares" => $bares,
 
-                "count" => $count //TODO: Count es el numero de resultados que ha devuelto sin paginar no el total de la tabla
+                "count" => $count
 
             )
 
@@ -106,6 +106,10 @@ class BarController
         $db = new db\DAO();
 
         $bar = $db->getBar($idBar);
+
+        $bar["img"] = $db->getImgBar($bar["id"]);
+
+        $bar['pinchos'] = $db->getPinchosBar($bar['id']);
 
         if (is_null($bar) || !isset($bar)) {
 
@@ -277,7 +281,7 @@ class BarController
 
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)[0]['rol'];
+        $user_rol = $db->getUser($token_data->correo)['rol'];
 
         if ($user_rol === 'admin' && !is_null($body_data)) {
 
@@ -478,7 +482,7 @@ class BarController
     }
 
 
-    public function removeImagesBar()
+    public function removeImages()
     {
 
         if (!isset($_GET['img_id']) || !isset($_GET['bar_id']) || !isset($_GET['filename'])) {
