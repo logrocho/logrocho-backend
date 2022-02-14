@@ -2,7 +2,6 @@
 
 require_once('./db/DAO.php');
 
-use dao as db;
 use Firebase\JWT\BeforeValidException;
 use Firebase\JWT\ExpiredException;
 use Firebase\JWT\JWT;
@@ -62,49 +61,6 @@ class Auth
         return null;
 
     }
-
-    // private function getBearerToken()
-    // {
-    //     $headers = $this->getAuthorizationHeader();
-
-    //     if (!empty($headers)) {
-
-    //         if (preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
-
-    //             $jwt = $matches[1];
-
-    //             if ($jwt) {
-
-    //                 return $jwt;
-
-    //             } else {
-
-    //                 http_response_code(400);
-
-    //                 echo json_encode(array(
-
-    //                     'status' => false,
-
-    //                     'message' => "jwt not found"
-    //                 ));
-
-    //                 exit;
-    //             }
-    //         }
-    //     }
-
-    //     http_response_code(400);
-
-    //     echo json_encode(array(
-
-    //         'status' => false,
-
-    //         'message' => "jwt not found"
-
-    //     ));
-
-    //     exit;
-    // }
 
     public function getDataToken(){
 

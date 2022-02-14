@@ -433,6 +433,13 @@ class PinchoController
 
         $pinchoID = $_GET['id'];
 
+
+        if(!file_exists("img/img_pinchos")){
+
+            mkdir("img/img_pinchos");
+            
+        }
+
         $target_dir = "img/img_pinchos/$pinchoID/";
 
         if (!file_exists($target_dir)) {

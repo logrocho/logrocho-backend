@@ -437,6 +437,18 @@ class BarController
         //     exit();
         // }
 
+        // http_response_code(200);
+
+        // echo json_encode(array(
+
+        //     'status' => true,
+
+        //     'message' => COUNT($_FILES),
+
+        // ));
+
+        // exit();
+
 
         if (!isset($_GET['id'])) {
 
@@ -454,6 +466,12 @@ class BarController
         }
 
         $barID = $_GET['id'];
+
+        if(!file_exists("img/img_bares")){
+
+            mkdir("img/img_bares");
+            
+        }
 
         $target_dir = "img/img_bares/$barID/";
 

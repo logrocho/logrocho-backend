@@ -19,6 +19,7 @@ use PDOException;
 use PDO;
 
 use conexion as con;
+use Exception;
 
 class DAO
 {
@@ -445,7 +446,7 @@ class DAO
                 }
 
                 $this->db->commit();
-            } catch (\Throwable $th) {
+            } catch (PDOException $th) {
 
                 $this->db->rollBack();
 
@@ -492,7 +493,7 @@ class DAO
     {
 
         try {
-            $sql = "INSERT iNTO bares (nombre, localizacion, informacion) VALUES (:nombre, :localizacion, :informacion)";
+            $sql = "INSERT iNTO `bares` (nombre, localizacion, informacion) VALUES (:nombre, :localizacion, :informacion)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -504,13 +505,35 @@ class DAO
 
             $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
-
-                return true;
-            } else {
+            if($stmt->rowCount() === 0){
 
                 return false;
             }
+
+            $bar_id = $this->db->lastInsertId();
+
+            try {
+
+                $this->db->beginTransaction();
+
+                foreach ($bar->getPinchos() as $key => $value) {
+
+                    $pincho_id = $value->id;
+
+                    $sql = "INSERT INTO `bares_pinchos` (bar_id, pincho_id) VALUES($bar_id, $pincho_id)";
+
+                    $this->db->query($sql);
+                }
+
+                $this->db->commit();
+            } catch (PDOException $th) {
+
+                $this->db->rollBack();
+
+                return false;
+            }
+
+            return true;
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
@@ -753,7 +776,7 @@ class DAO
 
             $stmt->bindValue(":nombre", $pincho->getNombre(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":puntuacion", $pincho->getPuntuacion(), PDO::PARAM_INT);
+            $stmt->bindValue(":puntuacion", 0, PDO::PARAM_INT);
 
             $stmt->bindValue(":ingredientes", $pincho->getIngredientes(), PDO::PARAM_STR);
 
