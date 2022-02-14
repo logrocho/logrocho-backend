@@ -123,55 +123,11 @@ class UsuarioController
     public function insertUser()
     {
 
-        $db = new db\DAO();
-
         $rawdata = file_get_contents("php://input");
 
         $body_data = new Usuario(json_decode($rawdata));
 
-        if (!is_null($body_data)) {
-
-            if (!preg_match("/^[^@\s]+@[^@\s]+\.[^@\s]+$/", $body_data->getCorreo()) || !preg_match("/^[a-zA-Z0-9]{8,}$/", $body_data->getPassword())) {
-
-                http_response_code(400);
-
-                echo json_encode(array(
-
-                    "status" => false,
-
-                    "message" => "Error creando el usuario"
-
-                ));
-
-                exit();
-            } else if ($db->insertUser($body_data)) {
-
-                http_response_code(201);
-
-                echo json_encode(array(
-
-                    "status" => true,
-
-                    "message" => "Usuario creado correctamente"
-
-                ));
-
-                exit();
-            } else {
-
-                http_response_code(400);
-
-                echo json_encode(array(
-
-                    "status" => false,
-
-                    "message" => "Error creando el usuario"
-
-                ));
-
-                exit();
-            }
-        } else {
+        if (is_null($body_data) || !isset($body_data)) {
 
             http_response_code(401);
 
@@ -179,7 +135,51 @@ class UsuarioController
 
                 "status" => false,
 
-                "message" => "Token not valid or no data provided"
+                "message" => "Body not provided"
+
+            ));
+
+            exit();
+        }
+
+        $db = new db\DAO();
+
+        if (!preg_match("/^[^@\s]+@[^@\s]+\.[^@\s]+$/", $body_data->getCorreo()) || !preg_match("/^(?=\w*\d)(?=\w*[A-Z])(?=\w*[a-z])\S{8,}$/", $body_data->getPassword())) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Error creando el usuario, comprueba que los datos sean correctos"
+
+            ));
+
+            exit();
+        }
+        if ($db->insertUser($body_data)) {
+
+            http_response_code(201);
+
+            echo json_encode(array(
+
+                "status" => true,
+
+                "message" => "Usuario creado correctamente"
+
+            ));
+
+            exit();
+        } else {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Error creando el usuario"
 
             ));
 

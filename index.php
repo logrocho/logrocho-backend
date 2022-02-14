@@ -52,13 +52,13 @@ try {
 
                 break;
 
-            case 'insertUser':
+            case 'insertUsuario':
 
                 $userController->insertUser();
 
                 break;
 
-            case 'deleteUser':
+            case 'deleteUsuario':
 
                 $userController->deleteUser();
 

@@ -173,7 +173,7 @@ class DAO
 
         try {
 
-            $sql = "INSERT INTO `usuarios` (correo, password, nombre, apellidos, img) VALUES (:correo, SHA1(:password), :nombre, :apellidos, :img)";
+            $sql = "INSERT INTO `usuarios` (correo, password, nombre, apellidos, rol) VALUES (:correo, SHA1(:password), :nombre, :apellidos, :rol)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -185,7 +185,7 @@ class DAO
 
             $stmt->bindValue(":apellidos", $user->getApellidos(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":img", $user->getImg(), PDO::PARAM_STR);
+            $stmt->bindValue(":rol", "user", PDO::PARAM_STR);
 
             $stmt->execute();
 

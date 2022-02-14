@@ -22,11 +22,9 @@ class Auth
         if (isset($_SERVER['Authorization'])) {
 
             $headers = trim($_SERVER["Authorization"]);
-
         } elseif (isset($_SERVER['HTTP_AUTHORIZATION'])) {
 
             $headers = trim($_SERVER["HTTP_AUTHORIZATION"]);
-
         } elseif (function_exists('apache_request_headers')) {
 
             $requestHeaders = apache_request_headers();
@@ -36,13 +34,10 @@ class Auth
             if (isset($requestHeaders['Authorization'])) {
 
                 $headers = trim($requestHeaders['Authorization']);
-
             }
-
         }
 
         return $headers;
-
     }
 
 
@@ -55,25 +50,23 @@ class Auth
         if (!empty($headers) && preg_match('/Bearer\s(\S+)/', $headers, $matches)) {
 
             return $matches[1];
-
         }
 
         return null;
-
     }
 
-    public function getDataToken(){
+    public function getDataToken()
+    {
 
         try {
 
             $jwt = $this->getBearerToken();
 
             $token_data = JWT::decode($jwt, new Key($this->secretKey, 'HS512'));
-    
-            return $token_data->data;
 
+            return $token_data->data;
         } catch (InvalidArgumentException $th) {
-            
+
             http_response_code(400);
 
             echo json_encode(array(
@@ -84,7 +77,6 @@ class Auth
             ));
 
             exit();
-
         } catch (UnexpectedValueException $th) {
 
             http_response_code(400);
@@ -97,7 +89,6 @@ class Auth
             ));
 
             exit();
-
         } catch (SignatureInvalidException $th) {
 
             http_response_code(400);
@@ -110,7 +101,6 @@ class Auth
             ));
 
             exit();
-            
         } catch (BeforeValidException $th) {
 
             http_response_code(400);
@@ -123,7 +113,6 @@ class Auth
             ));
 
             exit();
-
         } catch (ExpiredException $th) {
 
             http_response_code(400);
@@ -136,9 +125,6 @@ class Auth
             ));
 
             exit();
-
         }
-
     }
-
 }
