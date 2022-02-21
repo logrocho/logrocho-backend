@@ -105,12 +105,27 @@ class PinchoController
 
         $pincho = $db->getPincho($idPincho);
 
+        if (is_null($pincho) || !isset($pincho)) {
+
+            http_response_code(200);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "El pincho no existe"
+
+            ));
+
+            exit();
+        }
+
         $pincho['img'] = $db->getImgPincho($pincho["id"]);
 
         $pincho['resenas'] = $db->getResenasPincho($pincho["id"]);
 
         foreach ($pincho['resenas'] as $key => &$value) {
-        
+
             $usuario = $db->getUserById($value['usuario']);
 
             $value['usuario'] = array(
@@ -121,29 +136,17 @@ class PinchoController
             );
         }
 
-        if (is_null($pincho) || !isset($pincho)) {
+        http_response_code(200);
 
-            http_response_code(404);
+        echo json_encode(array(
 
-            echo json_encode(array(
+            "status" => true,
 
-                "status" => false,
+            "data" => $pincho
 
-                "message" => "El pincho no existe"
+        ));
 
-            ));
-        } else {
-
-            http_response_code(200);
-
-            echo json_encode(array(
-
-                "status" => true,
-
-                "data" => $pincho
-
-            ));
-        }
+        exit();
     }
 
     /**
@@ -448,10 +451,9 @@ class PinchoController
         $pinchoID = $_GET['id'];
 
 
-        if(!file_exists("img/img_pinchos")){
+        if (!file_exists("img/img_pinchos")) {
 
             mkdir("img/img_pinchos");
-            
         }
 
         $target_dir = "img/img_pinchos/$pinchoID/";

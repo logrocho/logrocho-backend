@@ -62,7 +62,7 @@ class UsuarioController
 
             $correo = $body_data->getCorreo();
 
-            $rol = $db->getUser($correo)['rol'];
+            $user = $db->getUser($correo);
 
             $data = array(
 
@@ -78,7 +78,9 @@ class UsuarioController
 
                     'correo' => $correo,
 
-                    'rol' => $rol
+                    'rol' => $user['rol'],
+
+                    'id' => $user['id'],
 
                 ),
             );

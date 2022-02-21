@@ -109,6 +109,20 @@ class BarController
 
         $bar = $db->getBar($idBar);
 
+        if (is_null($bar) || !isset($bar)) {
+
+            http_response_code(200);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "El bar no existe"
+
+            ));
+            exit();
+        }
+
         $bar["img"] = $db->getImgBar($bar["id"]);
 
         $bar['pinchos'] = $db->getPinchosBar($bar['id']);
@@ -120,29 +134,16 @@ class BarController
 
         $bar['media_puntuacion'] = $db->getPuntuacionMediaBar($bar['id']);
 
-        if (is_null($bar) || !isset($bar)) {
+        http_response_code(200);
 
-            http_response_code(404);
+        echo json_encode(array(
 
-            echo json_encode(array(
+            "status" => true,
 
-                "status" => false,
+            "data" => $bar
 
-                "message" => "El bar no existe"
-
-            ));
-        } else {
-
-            http_response_code(200);
-
-            echo json_encode(array(
-
-                "status" => true,
-
-                "data" => $bar
-
-            ));
-        }
+        ));
+        exit();
     }
 
     /**
