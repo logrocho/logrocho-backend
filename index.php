@@ -39,7 +39,7 @@ try {
 
         echo json_encode(array(
 
-            'apiVersion' => '2022-02-07'
+            'apiVersion' => '2022-02-21'
 
         ));
     } else {

@@ -115,6 +115,8 @@ class DAO
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
+
+            return null;
         }
     }
 
@@ -263,12 +265,6 @@ class DAO
     }
 
 
-
-
-
-
-
-
     /// ==================
     /// Bar Controller
     /// ==================
@@ -351,7 +347,7 @@ class DAO
     {
         try {
 
-            $sql = "SELECT p.id,p.nombre,p.puntuacion,p.ingredientes FROM `pinchos` as p left join `bares_pinchos` as bp on p.id = bp.pincho_id where bp.bar_id = :id";
+            $sql = "SELECT p.id,p.nombre,p.puntuacion FROM `pinchos` as p left join `bares_pinchos` as bp on p.id = bp.pincho_id where bp.bar_id = :id ORDER BY puntuacion DESC";
 
             $stmt = $this->db->prepare($sql);
 
@@ -374,10 +370,34 @@ class DAO
         }
     }
 
-
-    public function getBar(int $id)
+    public function getPuntuacionMediaBar(int $id)
     {
+        try {
 
+            $sql = "SELECT bares.id, bares.nombre, bares.localizacion, bares.informacion, AVG(pinchos.puntuacion) as media FROM `bares` left join bares_pinchos on bares.id = bares_pinchos.bar_id left join pinchos on bares_pinchos.pincho_id = pinchos.id WHERE bares.id = :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media'];
+
+            return $resultado ?? "0";
+
+
+            var_dump($stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media']);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
+
+
+
+    public function getBar($id)
+    {
         try {
             $sql = "SELECT * FROM `bares` WHERE id= :id";
 
@@ -505,7 +525,7 @@ class DAO
 
             $stmt->execute();
 
-            if($stmt->rowCount() === 0){
+            if ($stmt->rowCount() === 0) {
 
                 return false;
             }
@@ -677,6 +697,27 @@ class DAO
         }
     }
 
+    public function getResenasPincho($id)
+    {
+
+        try {
+            $sql = "SELECT *  FROM `resenas` WHERE pincho = :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id",$id,PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
+
+    
+
 
     public function getImgPincho(int $id)
     {
@@ -726,16 +767,12 @@ class DAO
 
             $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
-
-                return true;
-            } else {
-
-                return false;
-            }
+            return true;
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
         }
     }
 
@@ -801,7 +838,6 @@ class DAO
 
     public function insertImagenPincho(int $pincho_id, string $filename)
     {
-
         try {
 
             $sql = "INSERT iNTO `pinchos_img` (pincho_id, filename) VALUES (:pincho_id, :filename)";

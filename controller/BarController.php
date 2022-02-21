@@ -55,6 +55,8 @@ class BarController
             $value["img"] = $db->getImgBar($value["id"]);
 
             $value['pinchos'] = $db->getPinchosBar($value['id']);
+
+            $value['media_puntuacion'] = $db->getPuntuacionMediaBar($value['id']);
         }
 
         $count = $db->getBaresCount()['count'];
@@ -110,6 +112,13 @@ class BarController
         $bar["img"] = $db->getImgBar($bar["id"]);
 
         $bar['pinchos'] = $db->getPinchosBar($bar['id']);
+
+        foreach ($bar['pinchos'] as $key => &$value) {
+
+            $value["img"] = $db->getImgPincho($value["id"]);
+        }
+
+        $bar['media_puntuacion'] = $db->getPuntuacionMediaBar($bar['id']);
 
         if (is_null($bar) || !isset($bar)) {
 
@@ -418,38 +427,6 @@ class BarController
     public function uploadImages()
     {
 
-        // $auth = new Auth();
-
-        // $token_data = $auth->getDataToken();
-
-        // if (!$token_data || !isset($token_data)) {
-
-        //     http_response_code(401);
-
-        //     echo json_encode(array(
-
-        //         "status" => false,
-
-        //         "message" => "Token not provided"
-
-        //     ));
-
-        //     exit();
-        // }
-
-        // http_response_code(200);
-
-        // echo json_encode(array(
-
-        //     'status' => true,
-
-        //     'message' => COUNT($_FILES),
-
-        // ));
-
-        // exit();
-
-
         if (!isset($_GET['id'])) {
 
             http_response_code(404);
@@ -467,10 +444,9 @@ class BarController
 
         $barID = $_GET['id'];
 
-        if(!file_exists("img/img_bares")){
+        if (!file_exists("img/img_bares")) {
 
             mkdir("img/img_bares");
-            
         }
 
         $target_dir = "img/img_bares/$barID/";

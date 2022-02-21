@@ -107,6 +107,20 @@ class PinchoController
 
         $pincho['img'] = $db->getImgPincho($pincho["id"]);
 
+        $pincho['resenas'] = $db->getResenasPincho($pincho["id"]);
+
+        foreach ($pincho['resenas'] as $key => &$value) {
+        
+            $usuario = $db->getUserById($value['usuario']);
+
+            $value['usuario'] = array(
+                "id" => $usuario['id'],
+                "correo" => $usuario['correo'],
+                "nombre_apellidos" => $usuario['nombre'] . " " . $usuario['apellidos'],
+                "img" => $usuario['img']
+            );
+        }
+
         if (is_null($pincho) || !isset($pincho)) {
 
             http_response_code(404);
@@ -478,7 +492,7 @@ class PinchoController
 
         echo json_encode(array(
 
-            "status" => false,
+            "status" => true,
 
             "message" => 'Imagenes insertadas corretamente'
         ));
