@@ -70,6 +70,12 @@ try {
 
                 break;
 
+            case 'updateUserImg':
+
+                $userController->updateUserImg();
+
+                break;
+
             case 'users':
 
                 $userController->getUsers();

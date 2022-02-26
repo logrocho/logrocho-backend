@@ -334,9 +334,7 @@ class UsuarioController
 
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)['rol'];
-
-        if (($token_data->correo === $body_data->getCorreo() || $user_rol === 'admin')) {
+        if (($token_data->correo === $body_data->getCorreo())) {
 
             if ($db->updateUser($body_data)) {
 
@@ -372,6 +370,74 @@ class UsuarioController
                 "message" => "Accion exclusiva de usuarios admin"
 
             ));
+        }
+    }
+
+    public function updateUserImg()
+    {
+
+        if (!isset($_GET['id'])) {
+
+            http_response_code(404);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Faltan parametros'
+
+            ));
+
+            exit();
+        }
+
+        $userID = $_GET['id'];
+
+        if (!file_exists("img/img_usuarios")) {
+
+            mkdir("img/img_usuarios");
+        }
+
+        $target_dir = "img/img_usuarios/$userID/";
+
+        if (!file_exists($target_dir)) {
+
+            mkdir($target_dir);
+        }
+
+        $db = new db\DAO();
+
+        $target_file = $target_dir . basename($_FILES["file"]["name"]);
+
+        if (!file_exists($target_file)) {
+
+            move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
+
+            if (!$db->updateUserImg($userID, $_FILES["file"]["name"])) {
+
+                http_response_code(400);
+
+                echo json_encode(array(
+
+                    "status" => false,
+
+                    "message" => 'Error al actualizar la imagen'
+                ));
+
+                exit();
+            }
+
+
+            http_response_code(200);
+
+            echo json_encode(array(
+
+                "status" => true,
+
+                "message" => 'Imagen actualizada correctamente'
+            ));
+
+            exit();
         }
     }
 

@@ -233,37 +233,49 @@ class DAO
     {
 
         try {
-            $sql = "UPDATE `usuarios` SET password= SHA1(:password), nombre= :nombre, apellidos= :apellidos, img= :img, rol= :rol WHERE correo= :correo";
+            $sql = "UPDATE `usuarios` SET nombre= :nombre, apellidos= :apellidos WHERE correo= :correo";
 
             $stmt = $this->db->prepare($sql);
 
             $stmt->bindValue(":correo", $user->getCorreo(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":password", $user->getPassword(), PDO::PARAM_STR);
-
             $stmt->bindValue(":nombre", $user->getNombre(), PDO::PARAM_STR);
 
             $stmt->bindValue(":apellidos", $user->getApellidos(), PDO::PARAM_STR);
 
-            $stmt->bindValue(":img", $user->getImg(), PDO::PARAM_STR);
-
-            $stmt->bindValue(":rol", $user->getRol() ?? 'user', PDO::PARAM_STR);
-
             $stmt->execute();
 
-            if ($stmt->rowCount() > 0) {
-
-                return true;
-            } else {
-
-                return false;
-            }
+            return true;
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
         }
     }
 
+    public function updateUserImg($userID, $filename)
+    {
+
+        try {
+            $sql = "UPDATE `usuarios` SET img= :img WHERE id= :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $userID, PDO::PARAM_INT);
+
+            $stmt->bindValue(":img", $filename, PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
 
     /// ==================
     /// Bar Controller
@@ -705,7 +717,7 @@ class DAO
 
             $stmt = $this->db->prepare($sql);
 
-            $stmt->bindValue(":id",$id,PDO::PARAM_STR);
+            $stmt->bindValue(":id", $id, PDO::PARAM_STR);
 
             $stmt->execute();
 
@@ -716,7 +728,7 @@ class DAO
         }
     }
 
-    
+
 
 
     public function getImgPincho(int $id)
