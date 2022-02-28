@@ -430,6 +430,79 @@ class PinchoController
         }
     }
 
+    public function setNotaPincho()
+    {
+
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
+
+        $rawdata = file_get_contents("php://input");
+
+        $body_data = json_decode($rawdata);
+
+        if (!$body_data || !isset($body_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Body not provided"
+
+            ));
+
+            exit();
+        }
+
+        var_dump($body_data);
+        exit();
+
+        $db = new db\DAO();
+
+        if ($db->setNotaPincho($pinchoId, $token_data->id, $puntuacion)) {
+            http_response_code(200);
+
+            echo json_encode(array(
+
+                "status" => true,
+
+                "message" => "Puntuacion actualizada"
+
+            ));
+
+            exit();
+        }
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => false,
+
+            "message" => "Error al actualizar la puntuacion"
+
+        ));
+
+        exit();
+    }
+
     public function uploadImages()
     {
 

@@ -437,13 +437,17 @@ class DAO
     {
 
         try {
-            $sql = "UPDATE `bares` SET nombre= :nombre, localizacion= :localizacion, informacion= :informacion WHERE id= :id";
+            $sql = "UPDATE `bares` SET nombre= :nombre, localizacion= :localizacion, informacion= :informacion, latitud= :latitud, longitud= :longitud WHERE id= :id";
 
             $stmt = $this->db->prepare($sql);
 
             $stmt->bindValue(":nombre", $bar->getNombre() ?? "", PDO::PARAM_STR);
 
             $stmt->bindValue(":localizacion", $bar->getLocalizacion(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":latitud", (float) $bar->getLatitud());
+
+            $stmt->bindValue(":longitud", (float) $bar->getLongitud());
 
             $stmt->bindValue(":informacion", $bar->getInformacion(), PDO::PARAM_STR);
 
@@ -525,7 +529,7 @@ class DAO
     {
 
         try {
-            $sql = "INSERT iNTO `bares` (nombre, localizacion, informacion) VALUES (:nombre, :localizacion, :informacion)";
+            $sql = "INSERT iNTO `bares` (nombre, localizacion, informacion,latitud,longitud) VALUES (:nombre, :localizacion, :informacion,:latitud,:longitud)";
 
             $stmt = $this->db->prepare($sql);
 
@@ -534,6 +538,10 @@ class DAO
             $stmt->bindValue(":localizacion", $bar->getLocalizacion(), PDO::PARAM_STR);
 
             $stmt->bindValue(":informacion", $bar->getInformacion(), PDO::PARAM_STR);
+
+            $stmt->bindValue(":latitud", (float) $bar->getLatitud());
+
+            $stmt->bindValue(":longitud", (float) $bar->getLongitud());
 
             $stmt->execute();
 
@@ -843,6 +851,47 @@ class DAO
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
+
+    public function setNotaPincho($pinchoId, $usuarioId, $puntuacion)
+    {
+        try {
+            $sql = "UPDATE `pinchos_puntuacion` SET puntuacion= :puntuacion WHERE usuario= :usuario AND pincho= :pincho";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":puntuacion", $puntuacion, PDO::PARAM_INT);
+
+            $stmt->bindValue(":usuario", $usuarioId, PDO::PARAM_INT);
+
+            $stmt->bindValue(":pincho", $pinchoId, PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $th) {
+
+            try {
+                $sql = "INSERT INTO `pinchos_puntuacion` (usuario, pincho, puntuacion) VALUES (:usuario, :pincho, :puntuacion";
+
+                $stmt = $this->db->prepare($sql);
+
+                $stmt->bindValue(":usuario", $usuarioId, PDO::PARAM_INT);
+
+                $stmt->bindValue(":pincho", $pinchoId, PDO::PARAM_INT);
+
+                $stmt->bindValue(":puntuacion", $puntuacion, PDO::PARAM_STR);
+
+                $stmt->execute();
+
+                return true;
+            } catch (PDOException $th) {
+
+                echo "PDO ERROR: " . $th->getMessage();
+
+                return false;
+            }
         }
     }
 

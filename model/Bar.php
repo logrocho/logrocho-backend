@@ -8,6 +8,10 @@ class Bar
 
     private $localizacion;
 
+    private $latitud;
+
+    private $longitud;
+
     private $informacion;
 
     private $img;
@@ -21,6 +25,10 @@ class Bar
         $this->nombre = $BAR->nombre ?? null;
 
         $this->localizacion = $BAR->localizacion ?? null;
+
+        $this->latitud = $BAR->latitud ?? null;
+
+        $this->longitud = $BAR->longitud ?? null;
 
         $this->informacion = $BAR->informacion ?? null;
 
@@ -145,6 +153,46 @@ class Bar
     public function setPinchos($pinchos)
     {
         $this->pinchos = $pinchos;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of latitud
+     */ 
+    public function getLatitud()
+    {
+        return $this->latitud;
+    }
+
+    /**
+     * Set the value of latitud
+     *
+     * @return  self
+     */ 
+    public function setLatitud($latitud)
+    {
+        $this->latitud = $latitud;
+
+        return $this;
+    }
+
+    /**
+     * Get the value of longitud
+     */ 
+    public function getLongitud()
+    {
+        return $this->longitud;
+    }
+
+    /**
+     * Set the value of longitud
+     *
+     * @return  self
+     */ 
+    public function setLongitud($longitud)
+    {
+        $this->longitud = $longitud;
 
         return $this;
     }
