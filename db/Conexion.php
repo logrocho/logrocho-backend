@@ -12,7 +12,6 @@ class Conexion
     // const DB_USER = "sergiomalagonoci_sergio";
     // const DB_PASS = "Malagon2022";
 
-
     const DB_INFO = "mysql:host=localhost;dbname=logrocho";
     const DB_USER = "root";
     const DB_PASS = "";

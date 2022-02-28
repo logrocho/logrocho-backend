@@ -164,6 +164,11 @@ try {
                 $pinchoController->setNotaPincho();
 
                 break;
+            case 'updateNotaPincho':
+
+                $pinchoController->updateNotaPincho();
+
+                break;
 
             case 'uploadImagesPincho':
 

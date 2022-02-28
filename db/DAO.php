@@ -382,29 +382,29 @@ class DAO
         }
     }
 
-    public function getPuntuacionMediaBar(int $id)
-    {
-        try {
+    // public function getPuntuacionMediaBar(int $id)
+    // {
+    //     try {
 
-            $sql = "SELECT bares.id, bares.nombre, bares.localizacion, bares.informacion, AVG(pinchos.puntuacion) as media FROM `bares` left join bares_pinchos on bares.id = bares_pinchos.bar_id left join pinchos on bares_pinchos.pincho_id = pinchos.id WHERE bares.id = :id";
+    //         $sql = "SELECT bares.id, bares.nombre, bares.localizacion, bares.informacion, AVG(pinchos.puntuacion) as media FROM `bares` left join bares_pinchos on bares.id = bares_pinchos.bar_id left join pinchos on bares_pinchos.pincho_id = pinchos.id WHERE bares.id = :id";
 
-            $stmt = $this->db->prepare($sql);
+    //         $stmt = $this->db->prepare($sql);
 
-            $stmt->bindValue(":id", $id, PDO::PARAM_INT);
+    //         $stmt->bindValue(":id", $id, PDO::PARAM_INT);
 
-            $stmt->execute();
+    //         $stmt->execute();
 
-            $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media'];
+    //         $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media'];
 
-            return $resultado ?? "0";
+    //         return $resultado ?? "0";
 
 
-            var_dump($stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media']);
-        } catch (PDOException $th) {
+    //         var_dump($stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media']);
+    //     } catch (PDOException $th) {
 
-            echo "PDO ERROR: " . $th->getMessage();
-        }
-    }
+    //         echo "PDO ERROR: " . $th->getMessage();
+    //     }
+    // }
 
 
 
@@ -737,6 +737,24 @@ class DAO
     }
 
 
+    public function getPuntuacionMediaPincho($id)
+    {
+
+        try {
+            $sql = "SELECT AVG(puntuacion) as puntuacion FROM `pinchos_puntuacion` WHERE pincho = :id";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":id", $id, PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
 
 
     public function getImgPincho(int $id)
@@ -854,7 +872,56 @@ class DAO
         }
     }
 
+    public function getPuntuacionUsuarioPincho($usuario, $pincho)
+    {
+        try {
+            $sql = "SELECT * FROM `pinchos_puntuacion` WHERE usuario= :usuario AND pincho= :pincho";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":usuario", $usuario, PDO::PARAM_INT);
+
+            $stmt->bindValue(":pincho", $pincho, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+                return $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['puntuacion'];
+            }
+
+            return null;
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+            return null;
+        }
+    }
+
     public function setNotaPincho($pinchoId, $usuarioId, $puntuacion)
+    {
+        try {
+            $sql = "INSERT INTO `pinchos_puntuacion` (usuario, pincho, puntuacion) VALUES (:usuario, :pincho, :puntuacion)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":usuario", $usuarioId, PDO::PARAM_INT);
+
+            $stmt->bindValue(":pincho", $pinchoId, PDO::PARAM_INT);
+
+            $stmt->bindValue(":puntuacion", $puntuacion, PDO::PARAM_STR);
+
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
+
+    public function updateNotaPincho($pinchoId, $usuarioId, $puntuacion)
     {
         try {
             $sql = "UPDATE `pinchos_puntuacion` SET puntuacion= :puntuacion WHERE usuario= :usuario AND pincho= :pincho";
@@ -869,32 +936,15 @@ class DAO
 
             $stmt->execute();
 
-            return true;
-        } catch (PDOException $th) {
-
-            try {
-                $sql = "INSERT INTO `pinchos_puntuacion` (usuario, pincho, puntuacion) VALUES (:usuario, :pincho, :puntuacion";
-
-                $stmt = $this->db->prepare($sql);
-
-                $stmt->bindValue(":usuario", $usuarioId, PDO::PARAM_INT);
-
-                $stmt->bindValue(":pincho", $pinchoId, PDO::PARAM_INT);
-
-                $stmt->bindValue(":puntuacion", $puntuacion, PDO::PARAM_STR);
-
-                $stmt->execute();
-
+            if ($stmt->rowCount() > 0) {
                 return true;
-            } catch (PDOException $th) {
-
-                echo "PDO ERROR: " . $th->getMessage();
-
-                return false;
             }
+
+            throw new PDOException();
+        } catch (PDOException $th) {
+            return false;
         }
     }
-
 
 
     public function insertImagenPincho(int $pincho_id, string $filename)

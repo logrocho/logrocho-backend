@@ -412,33 +412,32 @@ class UsuarioController
         if (!file_exists($target_file)) {
 
             move_uploaded_file($_FILES["file"]["tmp_name"], $target_file);
+        }
+        if (!$db->updateUserImg($userID, $_FILES["file"]["name"])) {
 
-            if (!$db->updateUserImg($userID, $_FILES["file"]["name"])) {
-
-                http_response_code(400);
-
-                echo json_encode(array(
-
-                    "status" => false,
-
-                    "message" => 'Error al actualizar la imagen'
-                ));
-
-                exit();
-            }
-
-
-            http_response_code(200);
+            http_response_code(400);
 
             echo json_encode(array(
 
-                "status" => true,
+                "status" => false,
 
-                "message" => 'Imagen actualizada correctamente'
+                "message" => 'Error al actualizar la imagen'
             ));
 
             exit();
         }
+
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => true,
+
+            "message" => 'Imagen actualizada correctamente'
+        ));
+
+        exit();
     }
 
     /**

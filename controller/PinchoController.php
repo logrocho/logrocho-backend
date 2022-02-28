@@ -54,6 +54,8 @@ class PinchoController
         foreach ($pinchos as $key => &$value) {
 
             $value["img"] = $db->getImgPincho($value["id"]);
+
+            $value["puntuacion"] = $db->getPuntuacionMediaPincho($value["id"])[0]["puntuacion"];
         }
 
         $count = $db->getPinchosCount()['count'];
@@ -83,6 +85,18 @@ class PinchoController
      */
     public function getPincho()
     {
+
+        $hayToken = true;
+
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            $hayToken = false;
+        }
+
 
         if (!isset($_GET['id'])) {
 
@@ -124,6 +138,8 @@ class PinchoController
 
         $pincho['resenas'] = $db->getResenasPincho($pincho["id"]);
 
+        $pincho["puntuacion"] = $db->getPuntuacionMediaPincho($pincho["id"])[0]["puntuacion"];
+
         foreach ($pincho['resenas'] as $key => &$value) {
 
             $usuario = $db->getUserById($value['usuario']);
@@ -135,6 +151,12 @@ class PinchoController
                 "img" => $usuario['img']
             );
         }
+
+        if ($hayToken) {
+            $pincho["puntuacion_usuario"] = $db->getPuntuacionUsuarioPincho($token_data->id, $pincho["id"]);
+        }
+
+
 
         http_response_code(200);
 
@@ -471,12 +493,79 @@ class PinchoController
             exit();
         }
 
-        var_dump($body_data);
+        $db = new db\DAO();
+
+        if ($db->setNotaPincho($body_data->pincho, $token_data->id, $body_data->puntuacion)) {
+            http_response_code(200);
+
+            echo json_encode(array(
+
+                "status" => true,
+
+                "message" => "Puntuacion insertada"
+
+            ));
+
+            exit();
+        }
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => false,
+
+            "message" => "Error al insertar la puntuacion"
+
+        ));
+
         exit();
+    }
+
+    public function updateNotaPincho()
+    {
+
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
+
+        $rawdata = file_get_contents("php://input");
+
+        $body_data = json_decode($rawdata);
+
+        if (!$body_data || !isset($body_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Body not provided"
+
+            ));
+
+            exit();
+        }
 
         $db = new db\DAO();
 
-        if ($db->setNotaPincho($pinchoId, $token_data->id, $puntuacion)) {
+        if ($db->updateNotaPincho($body_data->pincho, $token_data->id, $body_data->puntuacion)) {
             http_response_code(200);
 
             echo json_encode(array(

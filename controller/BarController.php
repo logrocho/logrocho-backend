@@ -56,7 +56,18 @@ class BarController
 
             $value['pinchos'] = $db->getPinchosBar($value['id']);
 
-            $value['media_puntuacion'] = $db->getPuntuacionMediaBar($value['id']);
+            $numPinchos = 0;
+
+            $sumaPuntuacionPinchos = 0;
+
+            foreach ($value['pinchos'] as $key => &$pincho) {
+                
+                $sumaPuntuacionPinchos += $db->getPuntuacionMediaPincho($pincho["id"])[0]["puntuacion"];
+
+                $numPinchos = $numPinchos + 1;                
+            }
+
+            $value['media_puntuacion'] = $numPinchos !== 0 ? $sumaPuntuacionPinchos/$numPinchos : 0;
         }
 
         $count = $db->getBaresCount()['count'];
@@ -127,12 +138,22 @@ class BarController
 
         $bar['pinchos'] = $db->getPinchosBar($bar['id']);
 
+        $numPinchos = 0;
+
+        $sumaPuntuacionPinchos = 0;
+
         foreach ($bar['pinchos'] as $key => &$value) {
 
             $value["img"] = $db->getImgPincho($value["id"]);
+
+            $value["puntuacion"] = $db->getPuntuacionMediaPincho($value["id"])[0]["puntuacion"];
+
+            $numPinchos++;
+
+            $sumaPuntuacionPinchos += $db->getPuntuacionMediaPincho($value["id"])[0]["puntuacion"];
         }
 
-        $bar['media_puntuacion'] = $db->getPuntuacionMediaBar($bar['id']);
+        $bar['media_puntuacion'] = $numPinchos !== 0 ? ($sumaPuntuacionPinchos/$numPinchos) : 0;
 
         http_response_code(200);
 

@@ -62,6 +62,10 @@ class Auth
 
             $jwt = $this->getBearerToken();
 
+            if (!$jwt) {
+                return null;
+            }
+
             $token_data = JWT::decode($jwt, new Key($this->secretKey, 'HS512'));
 
             return $token_data->data;
