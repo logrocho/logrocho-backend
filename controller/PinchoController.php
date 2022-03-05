@@ -55,7 +55,7 @@ class PinchoController
 
             $value["img"] = $db->getImgPincho($value["id"]);
 
-            $value["puntuacion"] = $db->getPuntuacionMediaPincho($value["id"])[0]["puntuacion"];
+            $value["puntuacion"] = $db->getPuntuacionMediaPincho($value["id"])[0]["puntuacion"] ?? 0;
         }
 
         $count = $db->getPinchosCount()['count'];
@@ -138,11 +138,15 @@ class PinchoController
 
         $pincho['resenas'] = $db->getResenasPincho($pincho["id"]);
 
-        $pincho["puntuacion"] = $db->getPuntuacionMediaPincho($pincho["id"])[0]["puntuacion"];
+        $pincho["puntuacion"] = $db->getPuntuacionMediaPincho($pincho["id"])[0]["puntuacion"] ?? 0;
 
         foreach ($pincho['resenas'] as $key => &$value) {
 
             $usuario = $db->getUserById($value['usuario']);
+
+            $value['puntuacion'] = $db->getLikesResena($value['id'])[0]['count'];
+
+            $value['user_likes'] = $token_data ?  $db->checkIfLike($token_data->id, $value['id']) : false;
 
             $value['usuario'] = array(
                 "id" => $usuario['id'],
@@ -719,6 +723,64 @@ class PinchoController
             "status" => false,
 
             "message" => 'Error eliminando las imagenes'
+        ));
+
+        exit();
+    }
+
+
+    public function getMoreLikedPinchoByUser()
+    {
+
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
+
+        $db = new db\DAO();
+
+        $pinchos = $db->getMoreLikedPinchosByUser($token_data->id);
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => true,
+
+            "data" => $pinchos
+        ));
+
+        exit();
+    }
+
+    public function getMoreLikedPinchos()
+    {
+
+        $db = new db\DAO();
+
+        $pinchos = $db->getMoreLikedPinchos();
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            "status" => true,
+
+            "data" => $pinchos
         ));
 
         exit();

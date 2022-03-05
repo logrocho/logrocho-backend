@@ -382,32 +382,6 @@ class DAO
         }
     }
 
-    // public function getPuntuacionMediaBar(int $id)
-    // {
-    //     try {
-
-    //         $sql = "SELECT bares.id, bares.nombre, bares.localizacion, bares.informacion, AVG(pinchos.puntuacion) as media FROM `bares` left join bares_pinchos on bares.id = bares_pinchos.bar_id left join pinchos on bares_pinchos.pincho_id = pinchos.id WHERE bares.id = :id";
-
-    //         $stmt = $this->db->prepare($sql);
-
-    //         $stmt->bindValue(":id", $id, PDO::PARAM_INT);
-
-    //         $stmt->execute();
-
-    //         $resultado = $stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media'];
-
-    //         return $resultado ?? "0";
-
-
-    //         var_dump($stmt->fetchAll(PDO::FETCH_ASSOC)[0]['media']);
-    //     } catch (PDOException $th) {
-
-    //         echo "PDO ERROR: " . $th->getMessage();
-    //     }
-    // }
-
-
-
     public function getBar($id)
     {
         try {
@@ -1001,6 +975,45 @@ class DAO
     }
 
 
+    public function getMoreLikedPinchos()
+    {
+        try {
+            $sql = "SELECT pinchos_puntuacion.pincho, pinchos_img.filename, pinchos_puntuacion.puntuacion, pinchos.nombre FROM `pinchos_puntuacion` LEFT JOIN `pinchos_img` on pinchos_img.pincho_id = pinchos_puntuacion.pincho LEFT JOIN `pinchos` on pinchos.id = pinchos_puntuacion.pincho GROUP BY pinchos_puntuacion.pincho order by pinchos_puntuacion.puntuacion DESC LIMIT 5";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
+
+    public function getMoreLikedPinchosByUser($idUsuario)
+    {
+        try {
+            $sql = "SELECT pinchos_puntuacion.pincho, pinchos_img.filename, pinchos_puntuacion.puntuacion, pinchos.nombre FROM `pinchos_puntuacion` LEFT JOIN `pinchos_img` on pinchos_img.pincho_id = pinchos_puntuacion.pincho LEFT JOIN `pinchos` on pinchos.id = pinchos_puntuacion.pincho WHERE pinchos_puntuacion.usuario = :usuario GROUP BY pinchos_puntuacion.pincho order by pinchos_puntuacion.puntuacion DESC LIMIT 5";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":usuario", $idUsuario, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
+
+
 
     /// ==================
     /// Resena Controller
@@ -1162,6 +1175,123 @@ class DAO
         } catch (PDOException $th) {
 
             echo "PDO ERROR: " . $th->getMessage();
+        }
+    }
+
+
+    public function checkIfLike($idUsuario, $idResena)
+    {
+        try {
+
+            $sql = "SELECT * FROM `resenas_likes` WHERE usuario= :usuario AND resena= :resena";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":usuario", $idUsuario, PDO::PARAM_INT);
+
+            $stmt->bindValue(":resena", $idResena, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            if ($stmt->rowCount() > 0) {
+
+                return true;
+            }
+
+            return false;
+        } catch (PDOException $th) {
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
+
+
+    public function getLikesResena($idResena)
+    {
+
+        try {
+            $sql = "SELECT COUNT(id) as `count` FROM `resenas_likes` WHERE resena= :resena";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":resena", $idResena, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return null;
+        }
+    }
+
+
+    public function setLikeResena($idUsuario, $idResena)
+    {
+
+        try {
+            $sql = "INSERT iNTO `resenas_likes` (usuario, resena) VALUES (:usuario, :resena)";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":usuario", $idUsuario, PDO::PARAM_INT);
+
+            $stmt->bindValue(":resena", $idResena, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
+
+    public function removeLikeResena($idUsuario, $idResena)
+    {
+
+        try {
+            $sql = "DELETE FROM `resenas_likes`  WHERE usuario= :usuario AND resena= :resena";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->bindValue(":usuario", $idUsuario, PDO::PARAM_INT);
+
+            $stmt->bindValue(":resena", $idResena, PDO::PARAM_INT);
+
+            $stmt->execute();
+
+            return true;
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
+        }
+    }
+
+
+    public function getMoreLikedResenas()
+    {
+
+        try {
+            $sql = "SELECT resenas_likes.resena, resenas.mensaje, COUNT(resenas_likes.resena) as puntuacion FROM `resenas_likes` LEFT JOIN `resenas` on resenas_likes.resena = resenas.id GROUP BY resenas_likes.resena ORDER BY COUNT(resenas_likes.resena) DESC LIMIT 10";
+
+            $stmt = $this->db->prepare($sql);
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $th) {
+
+            echo "PDO ERROR: " . $th->getMessage();
+
+            return false;
         }
     }
 }

@@ -212,6 +212,36 @@ try {
 
                 break;
 
+            case 'setLikeResena':
+
+                $resenaController->setLikeResena();
+
+                break;
+
+            case 'removeLikeResena':
+
+                $resenaController->removeLikeResena();
+
+                break;
+
+            case 'getMoreLikedPinchos':
+
+                $pinchoController->getMoreLikedPinchos();
+
+                break;
+
+            case 'getMoreLikedPinchoByUser':
+
+                $pinchoController->getMoreLikedPinchoByUser();
+
+                break;
+
+            case 'getMoreLikedResenas':
+
+                $resenaController->getMoreLikedResenas();
+
+                break;
+
             default:
 
                 http_response_code(404);

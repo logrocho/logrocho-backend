@@ -56,6 +56,8 @@ class ResenaController
 
             $pincho = $db->getPincho($value['pincho']);
 
+            $value['puntuacion'] = $db->getLikesResena($value['id'])[0]['count'];
+
             $value['usuario'] = array(
 
                 "id" => $user['id'],
@@ -136,6 +138,8 @@ class ResenaController
         $user = $db->getUserById($resena['usuario']);
 
         $pincho = $db->getPincho($resena['pincho']);
+
+        $resena['puntuacion'] = $db->getLikesResena($resena['id'])[0]['count'];
 
         $resena['usuario'] = array(
 
@@ -402,9 +406,7 @@ class ResenaController
 
         $db = new db\DAO();
 
-        $user_rol = $db->getUser($token_data->correo)['rol'];
-
-        if ($user_rol === 'admin' && !is_null($body_data)) {
+        if ($token_data && !is_null($body_data)) {
 
             if ($db->insertResena($body_data)) {
 
@@ -437,9 +439,238 @@ class ResenaController
 
                 "status" => false,
 
-                "message" => "Accion exclusiva de usuarios admin"
+                "message" => "Accion exclusiva para usuarios logeados"
 
             ));
         }
+    }
+
+    public function setLikeResena()
+    {
+
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
+
+
+        $rawdata = file_get_contents("php://input");
+
+        $body_data = new Resena(json_decode($rawdata));
+
+        if (!$body_data || !isset($body_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Body not provided"
+
+            ));
+
+            exit();
+        }
+
+        $db = new db\DAO();
+
+        $user = $db->getUserById($token_data->id);
+
+        if (!$user['id'] === $token_data->id) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Usuario no permitido'
+
+            ));
+
+            exit();
+        }
+
+        if ($db->checkIfLike($user['id'], $body_data->getId())) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'No se puede dar like a una reseña que ya lo tiene'
+
+            ));
+
+            exit();
+        }
+
+        if (!$db->setLikeResena($user['id'], $body_data->getId())) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Error al likear resenña'
+
+            ));
+
+            exit();
+        }
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            'status' => true,
+
+            'message' => 'Reseña likeada correctamente'
+
+        ));
+
+        exit();
+    }
+
+    public function removeLikeResena()
+    {
+
+        $auth = new Auth();
+
+        $token_data = $auth->getDataToken();
+
+        if (!$token_data || !isset($token_data)) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Token not provided"
+
+            ));
+
+            exit();
+        }
+
+
+        $rawdata = file_get_contents("php://input");
+
+        $body_data = new Resena(json_decode($rawdata));
+
+        if (!$body_data || !isset($body_data)) {
+
+            http_response_code(401);
+
+            echo json_encode(array(
+
+                "status" => false,
+
+                "message" => "Body not provided"
+
+            ));
+
+            exit();
+        }
+
+        $db = new db\DAO();
+
+        $user = $db->getUserById($token_data->id);
+
+        if (!$user['id'] === $token_data->id) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Usuario no permitido'
+
+            ));
+
+            exit();
+        }
+
+        // if ($db->checkIfLike($user['id'], $body_data->getId())) {
+
+        //     http_response_code(400);
+
+        //     echo json_encode(array(
+
+        //         'status' => false,
+
+        //         'message' => 'No se puede dar like a una reseña que ya lo tiene'
+
+        //     ));
+
+        //     exit();
+        // }
+
+        if (!$db->removeLikeResena($user['id'], $body_data->getId())) {
+
+            http_response_code(400);
+
+            echo json_encode(array(
+
+                'status' => false,
+
+                'message' => 'Error al remove like en la resenña'
+
+            ));
+
+            exit();
+        }
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            'status' => true,
+
+            'message' => 'Like removed correctamente correctamente'
+
+        ));
+
+        exit();
+    }
+
+
+    public function getMoreLikedResenas()
+    {
+
+        $db = new db\DAO();
+
+        $resenas = $db->getMoreLikedResenas();
+
+        http_response_code(200);
+
+        echo json_encode(array(
+
+            'status' => true,
+
+            'data' => $resenas
+
+        ));
+
+        exit();
     }
 }
