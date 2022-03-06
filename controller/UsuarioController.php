@@ -21,9 +21,10 @@ class UsuarioController
 {
     /**
      * Comprueba si el usuario existe en la db
-     * @param string $correo [Parametro POST]
-     * @param string $password [Parametro POST]
-     * @return string JWT Token
+     * 
+     *  - string $correo -> Correo del usuario [POST]
+     *  - string $password -> Contraseña del usuario [POST]
+     * @return JWT Token
      * @author Sergio Malagon Martin
      */
     public function login()
@@ -110,15 +111,13 @@ class UsuarioController
         }
     }
 
-
     /**
      * Inserta un usuario
-     * @param string $correo [Parametro POST]
-     * @param string $password [Parametro POST]
-     * @param string $nombre [Parametro POST]
-     * @param string $apellidos [Parametro POST]
-     * @param string $img [Parametro POST] 
-     * @param string $rol [Parametro POST]
+     * 
+     *  - string $correo -> Correo del usuario [POST]
+     *  - string $password -> Contraseña del usuario [POST]
+     *  - string $nombre -> Nombre del usuario [POST]
+     *  - string $apellidos -> Apellidos del usuario [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -191,7 +190,8 @@ class UsuarioController
 
     /**
      * Elimina un usuario
-     * @param string $correo [Parametro GET]
+     * 
+     *  - string $correo -> Correo del usuario [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -282,11 +282,11 @@ class UsuarioController
 
     /**
      * Actualiza los datos de un usuario
-     * @param string $correo [Parametro POST]
-     * @param string $password [Parametro POST]
-     * @param string $nombre [Parametro POST]
-     * @param string $apellidos [Parametro POST]
-     * @param string $img [Parametro POST]
+     * 
+     *  - string $correo -> Correo del usuario  [POST]
+     *  - string $password -> Contraseña del usuario [POST]
+     *  - string $nombre -> Nombre del usuario [POST]
+     *  - string $apellidos -> Apellidos del usuario [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -373,6 +373,14 @@ class UsuarioController
         }
     }
 
+    /**
+     * Actualiza la imagen de perfil del usuario
+     * 
+     *  - int $id -> Id del usuario [GET]
+     *  - file $file -> Imagen de perfil [POST]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function updateUserImg()
     {
 
@@ -442,9 +450,13 @@ class UsuarioController
 
     /**
      * Obtiene una lista de usuarios
-     * @param int $offset [Parametro GET]
-     * @param int $limit [Parametro GET]
-     * @return Usuario[] Los usuarios obtenidos
+     *  
+     *  - int $offset -> numero de resultados que dejo fuera a partir del primero [GET]
+     *  - int $limit -> numero de usuarios que quieres obtener [GET]
+     *  - string $key -> caracteres que nombre del usuario contiene [GET]
+     *  - string $order -> columna sobre la que se ordenan los usuarios [GET]
+     *  - string $direction -> ASC o DESC [GET]
+     * @return Usuario[] Array con los usuarios
      * @author Sergio Malagon Martin
      */
     public function getUsers()
@@ -536,8 +548,9 @@ class UsuarioController
 
     /**
      * Obtiene un usuario
-     * @param string $correo [Parametro GET]
-     * @return Usuario El usuario obtenido
+     * 
+     *  - string $correo -> Correo del usuario [GET]
+     * @return Usuario
      * @author Sergio Malagon Martin
      */
     public function getUser()

@@ -10,12 +10,13 @@ class ResenaController
 
     /**
      * Obtiene una lista de reseñas
-     * @param int $offset [Parametro GET]
-     * @param int $limit [Parametro GET]
-     * @param string $key [Parametro GET]
-     * @param string $order [Parametro GET]
-     * @param string $direction [Parametro GET]
-     * @return Resena[] Las reseñas obtenidos
+     *  
+     *  - int $offset -> numero de resultados que dejo fuera a partir del primero [GET]
+     *  - int $limit -> numero de reseñas que quieres obtener [GET]
+     *  - string $key -> caracteres que el mensaje de la reseña contiene [GET]
+     *  - string $order -> columna sobre la que se ordenan las reseñas [GET]
+     *  - string $direction -> ASC o DESC [GET]
+     * @return Resena[] Array con las reseñas
      * @author Sergio Malagon Martin
      */
     public function getResenas()
@@ -92,7 +93,8 @@ class ResenaController
 
     /**
      * Obtiene una reseña
-     * @param string $id [Parametro GET]
+     * 
+     *  - int $id -> Id de la reseña [GET]
      * @return Resena El reseña obtenido
      * @author Sergio Malagon Martin
      */
@@ -168,11 +170,9 @@ class ResenaController
 
     /**
      * Actualiza los datos de una reseña
-     * @param string $id [Parametro POST]
-     * @param string $id_usuario [Parametro POST]
-     * @param string $id_pincho [Parametro POST]
-     * @param string $mensaje [Parametro POST]
-     * @param string $puntuacion [Parametro POST]
+     * 
+     *  - int $id -> Id de la reseña [POST]
+     *  - string $mensaje -> Mensaje de la reseña [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -264,7 +264,8 @@ class ResenaController
 
     /**
      * Elimina una reseña
-     * @param string $id [Parametro GET]
+     * 
+     *  - int $id -> Id de la reseña [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -356,10 +357,10 @@ class ResenaController
 
     /**
      * Inserta una reseña
-     * @param string $id_usuario [Parametro POST]
-     * @param string $id_pincho [Parametro POST]
-     * @param string $mensaje [Parametro POST]
-     * @param string $puntuacion [Parametro POST]
+     * 
+     *  - int $usuario -> Id usuario [POST]
+     *  - int $pincho -> Id del pincho [POST]
+     *  - string $mensaje -> Mensaje de la pincho [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -445,6 +446,13 @@ class ResenaController
         }
     }
 
+    /**
+     * Da like a una reseña
+     * 
+     * - int $id -> Id de la reseña [POST]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function setLikeResena()
     {
 
@@ -549,6 +557,13 @@ class ResenaController
         exit();
     }
 
+    /**
+     * Elimina el like de una reseña
+     * 
+     * - int $id -> Id de la reseña [POST]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function removeLikeResena()
     {
 
@@ -654,6 +669,12 @@ class ResenaController
     }
 
 
+    /**
+     * Devuelve un array con la reseñas mejor valoradas
+     * 
+     * @return Resena[]
+     * @author Sergio Malagon Martin
+     */
     public function getMoreLikedResenas()
     {
 

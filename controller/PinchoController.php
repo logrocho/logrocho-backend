@@ -10,12 +10,13 @@ class PinchoController
 
     /**
      * Obtiene una lista de pinchos
-     * @param int $offset [Parametro GET]
-     * @param int $limit [Parametro GET]
-     * @param string $key [Parametro GET]
-     * @param string $order [Parametro GET]
-     * @param string $direction [Parametro GET]
-     * @return Pincho[] Los pinchos obtenidos
+     *  
+     *  - int $offset -> numero de resultados que dejo fuera a partir del primero [GET]
+     *  - int $limit -> numero de pinchos que quieres obtener [GET]
+     *  - string $key -> caracteres que el nombre del pincho contiene [GET]
+     *  - string $order -> columna sobre la que se ordenan los pinchos [GET]
+     *  - string $direction -> ASC o DESC [GET]
+     * @return Pincho[] Array con los pinchos
      * @author Sergio Malagon Martin
      */
     public function getPinchos()
@@ -79,7 +80,8 @@ class PinchoController
 
     /**
      * Obtiene un pincho
-     * @param string $id [Parametro GET]
+     * 
+     *  - string $id -> Id del pincho [GET]
      * @return Pincho El pincho obtenido
      * @author Sergio Malagon Martin
      */
@@ -177,11 +179,12 @@ class PinchoController
 
     /**
      * Actualiza los datos de un pincho
-     * @param string $id [Parametro POST]
-     * @param string $nombre [Parametro POST]
-     * @param string $puntuacion [Parametro POST]
-     * @param string $ingredientes [Parametro POST]
-     * @param string $img [Parametro POST]
+     * 
+     *  - int $id -> Id del pincho [POST]
+     *  - string $nombre -> Nombre del pincho [POST]
+     *  - int $puntuacion -> Puntuacion del pincho [POST]
+     *  - string $ingredientes -> Ingredientes del pincho [POST]
+     *  - float $precio -> Precio del pincho [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -273,7 +276,8 @@ class PinchoController
 
     /**
      * Elimina un pincho
-     * @param string $id [Parametro GET]
+     * 
+     *  - int $id -> Id del pincho [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -364,11 +368,12 @@ class PinchoController
 
 
     /**
-     * Inserta un pincho
-     * @param string $nombre [Parametro POST]
-     * @param string $puntuacion [Parametro POST]
-     * @param string $ingredientes [Parametro POST]
-     * @param string $img [Parametro POST]
+     * Inserta un nuevo pincho
+     * 
+     *  - string $nombre -> Nombre del pincho [POST]
+     *  - int $puntuacion -> Puntuacion del pincho [POST]
+     *  - string $ingredientes -> Ingredientes del pincho [POST]
+     *  - float $precio -> Precio del pincho [POST]
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -456,6 +461,15 @@ class PinchoController
         }
     }
 
+    /**
+     * Pone una nota a un pincho
+     * 
+     *  - int $pinchoId -> Id del pincho [POST]
+     *  - int $usuarioId -> Id del usuario que inserta la puntuacion
+     *  - int $puntuacion -> Puntuacion que se le asigna al pincho 
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function setNotaPincho()
     {
 
@@ -526,6 +540,15 @@ class PinchoController
         exit();
     }
 
+    /**
+     * Actualiza la nota de un pincho
+     * 
+     *  - int $pinchoId -> Id del pincho [POST]
+     *  - int $usuarioId -> Id del usuario que inserta la puntuacion
+     *  - int $puntuacion -> Puntuacion que se le asigna al pincho 
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function updateNotaPincho()
     {
 
@@ -596,6 +619,15 @@ class PinchoController
         exit();
     }
 
+
+    /**
+     * Sube una imagen de pincho al servidor y deja registro en la BD
+     * 
+     *  - File $img -> Imagen del pincho [POST]
+     *  - int $id -> Id del pincho [GET]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function uploadImages()
     {
 
@@ -668,6 +700,15 @@ class PinchoController
         exit();
     }
 
+    /**
+     * Elimina una imagen de pincho del servidor y elimina el registro en la BD
+     * 
+     *  - int $img_id -> Id de la imagen [GET]
+     *  - int $pincho_id -> Id del pincho que contiene la imagen [GET]
+     *  - string $filename -> Nombre de la imagen [GET]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function removeImages()
     {
 
@@ -729,6 +770,12 @@ class PinchoController
     }
 
 
+    /**
+     * Devuelve un array con los 5 pinchos con mejor puntuacion por cierto usuario
+     * 
+     * @return Pincho[]
+     * @author Sergio Malagon Martin
+     */
     public function getMoreLikedPinchoByUser()
     {
 
@@ -767,6 +814,12 @@ class PinchoController
         exit();
     }
 
+    /**
+     * Devuelve un array con los 5 pinchos con mejor puntuacion de la web
+     * 
+     * @return Pincho[]
+     * @author Sergio Malagon Martin
+     */
     public function getMoreLikedPinchos()
     {
 

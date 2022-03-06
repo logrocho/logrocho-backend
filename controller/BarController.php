@@ -10,11 +10,13 @@ class BarController
 
     /**
      * Obtiene una lista de bares
-     * @param int $offset [Parametro GET]
-     * @param int $limit [Parametro GET]
-     * @param string $key [Parametro GET]
-     * @param string $order [Parametro GET]
-     * @param string $direction [Parametro GET]
+     * 
+     * Query params [GET]
+     *  - int $offset -> numero de resultados que dejo fuera a partir del primero
+     *  - int $limit -> numero de bares que quieres obtener
+     *  - string $key -> caracteres que el bar contiene
+     *  - string $order -> columna sobre la que se ordenan los bares
+     *  - string $direction -> ASC o DESC
      * @return Bar[] Los bares obtenidos
      * @author Sergio Malagon Martin
      */
@@ -61,13 +63,13 @@ class BarController
             $sumaPuntuacionPinchos = 0;
 
             foreach ($value['pinchos'] as $key => &$pincho) {
-                
+
                 $sumaPuntuacionPinchos += $db->getPuntuacionMediaPincho($pincho["id"])[0]["puntuacion"];
 
-                $numPinchos = $numPinchos + 1;                
+                $numPinchos = $numPinchos + 1;
             }
 
-            $value['media_puntuacion'] = $numPinchos !== 0 ? $sumaPuntuacionPinchos/$numPinchos : 0;
+            $value['media_puntuacion'] = $numPinchos !== 0 ? $sumaPuntuacionPinchos / $numPinchos : 0;
         }
 
         $count = $db->getBaresCount()['count'];
@@ -92,7 +94,9 @@ class BarController
 
     /**
      * Obtiene un bar
-     * @param string $id [Parametro GET]
+     * 
+     * Query params [GET]
+     *  - int $id -> Id del bar
      * @return Bar El bar obtenido
      * @author Sergio Malagon Martin
      */
@@ -153,7 +157,7 @@ class BarController
             $sumaPuntuacionPinchos += $db->getPuntuacionMediaPincho($value["id"])[0]["puntuacion"];
         }
 
-        $bar['media_puntuacion'] = $numPinchos !== 0 ? ($sumaPuntuacionPinchos/$numPinchos) : 0;
+        $bar['media_puntuacion'] = $numPinchos !== 0 ? ($sumaPuntuacionPinchos / $numPinchos) : 0;
 
         http_response_code(200);
 
@@ -169,11 +173,12 @@ class BarController
 
     /**
      * Actualiza los datos de un bar
-     * @param string $id [Parametro POST]
-     * @param string $nombre [Parametro POST]
-     * @param string $localizacion [Parametro POST]
-     * @param string $informacion [Parametro POST]
-     * @param string $img [Parametro POST]
+     * 
+     * Body data [POST]
+     *  - int $id -> ID del bar
+     *  - string $nombre -> Nuevo nombre
+     *  - string $localizacion -> Nueva localizacacion
+     *  - string $informacion -> Nueva informacion
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -264,7 +269,9 @@ class BarController
 
     /**
      * Elimina un bar
-     * @param string $id [Parametro GET]
+     * 
+     * Body data [POST]
+     *  - int $id -> Id del bar
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -355,10 +362,11 @@ class BarController
 
     /**
      * Inserta un bar
-     * @param string $nombre [Parametro POST]
-     * @param string $localizacion [Parametro POST]
-     * @param string $informacion [Parametro POST]
-     * @param string $img [Parametro POST]
+     * 
+     * Body data [POST]
+     *  - string $nombre -> Nombre del bar
+     *  - string $localizacion -> Localizacacion del bar
+     *  - string $informacion -> Informacion del bar
      * @return null
      * @author Sergio Malagon Martin
      */
@@ -446,6 +454,14 @@ class BarController
         }
     }
 
+    /**
+     * Sube una imagen de bar al servidor y deja registro en la BD
+     * 
+     *  - File $img -> Imagen de bar [POST]
+     *  - int $id -> Id del bar [GET]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function uploadImages()
     {
 
@@ -518,6 +534,15 @@ class BarController
     }
 
 
+    /**
+     * Elimina una imagen de bar del servidor y elimina el registro en la BD
+     * 
+     *  - int $img_id -> Id de la imagen [GET]
+     *  - int $bar_id -> Id del bar que contiene la imagen [GET]
+     *  - string $filename -> Nombre de la imagen [GET]
+     * @return null
+     * @author Sergio Malagon Martin
+     */
     public function removeImages()
     {
 
